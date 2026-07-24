@@ -132,6 +132,11 @@
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <field>Huddle_Open_Decision__c.Raised_On__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Huddle_Open_Decision__c.Raised_By__c</field>
         <readable>true</readable>
         <editable>false</editable>
@@ -187,17 +192,17 @@
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Activity.Huddle_Generated__c</field>
+        <field>Task.Huddle_Generated__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Activity.Huddle_Source_Strategy_Log__c</field>
+        <field>Task.Huddle_Source_Strategy_Log__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Activity.Huddle_Owner_Unclear__c</field>
+        <field>Task.Huddle_Owner_Unclear__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>

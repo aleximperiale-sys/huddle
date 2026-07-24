@@ -66,10 +66,12 @@ public with sharing class Huddle_HomeDashboardController {
   public static Summary getSummary() {
     Summary s = new Summary();
 
+    // Counted by when the huddle happened, not when someone typed it up. A
+    // meeting held last Thursday and logged on Monday belongs to last week.
     s.sessionsThisWeek = [
       SELECT COUNT()
       FROM Huddle_Strategy_Log__c
-      WHERE CreatedDate = THIS_WEEK
+      WHERE Meeting_Date__c = THIS_WEEK
     ];
     s.sessionsAllTime = [SELECT COUNT() FROM Huddle_Strategy_Log__c];
 

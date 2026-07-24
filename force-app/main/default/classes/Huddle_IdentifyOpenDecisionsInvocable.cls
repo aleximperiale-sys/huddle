@@ -74,6 +74,7 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
       return r;
     }
 
+    Date meetingDate = meetingDateFor(logId);
     Set<String> existing = existingQuestions(oppId);
     List<Huddle_Open_Decision__c> toInsert = new List<Huddle_Open_Decision__c>();
     Integer duplicates = 0;
@@ -92,9 +93,12 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
           Question__c = Huddle_Util.clip(q.question, 32000),
           Context__c = Huddle_Util.clip(q.context, 32000),
           Status__c = Huddle_Constants.DECISION_OPEN,
+          // Both dates hang off the meeting, not off when the recap was typed up.
+          // "Before the next call" was said in the room, so it counts from there.
+          Raised_On__c = meetingDate,
           Needed_By__c = q.neededInDays == null
             ? null
-            : Date.today().addDays(q.neededInDays),
+            : meetingDate.addDays(q.neededInDays),
           Raised_By__c = repId
         )
       );
@@ -155,6 +159,27 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
       out.add(normalize(d.Question__c));
     }
     return out;
+  }
+
+  /**
+   * When the huddle actually happened. A meeting written up late still has its
+   * questions aging from the day they were raised, which is the honest answer to
+   * "how long has this been hanging?".
+   */
+  private static Date meetingDateFor(Id strategyLogId) {
+    if (strategyLogId == null) {
+      return Date.today();
+    }
+    List<Huddle_Strategy_Log__c> logs = [
+      SELECT Meeting_Date__c
+      FROM Huddle_Strategy_Log__c
+      WHERE Id = :strategyLogId
+      LIMIT 1
+    ];
+    if (logs.isEmpty() || logs[0].Meeting_Date__c == null) {
+      return Date.today();
+    }
+    return logs[0].Meeting_Date__c;
   }
 
   private static String normalize(String q) {

@@ -400,10 +400,16 @@ private class Huddle_Invocables_Test {
         Question__c,
         Status__c,
         Needed_By__c,
+        Raised_On__c,
         Strategy_Log__c,
         Opportunity__c
       FROM Huddle_Open_Decision__c
     ];
+    Assert.areEqual(
+      Date.today(),
+      d.Raised_On__c,
+      'A meeting held today raises its questions today'
+    );
     Assert.areEqual(Huddle_Constants.DECISION_OPEN, d.Status__c);
     Assert.areEqual(
       log.Id,
@@ -422,6 +428,89 @@ private class Huddle_Invocables_Test {
         FROM Huddle_Change_Log__c
         WHERE Change_Type__c = :Huddle_Constants.CHANGE_DECISION_RAISED
       ]
+    );
+  }
+
+  @IsTest
+  static void taskDueDatesAreRelativeToTheMeeting() {
+    Opportunity opp = Huddle_TestUtil.createOpportunity();
+    Huddle_Strategy_Log__c log = Huddle_TestUtil.createStrategyLog(
+      opp.Id,
+      Huddle_TestUtil.FULL_RECAP,
+      Date.today().addDays(-21)
+    );
+
+    Huddle_CreateActionItemsInvocable.Request req = new Huddle_CreateActionItemsInvocable.Request();
+    req.strategyLogId = log.Id;
+    req.opportunityId = opp.Id;
+    req.apply = true;
+
+    Test.startTest();
+    Huddle_CreateActionItemsInvocable.run(
+      new List<Huddle_CreateActionItemsInvocable.Request>{ req }
+    );
+    Test.stopTest();
+
+    // "by Friday" on a meeting three weeks ago is three weeks ago plus three days.
+    List<Task> tasks = [
+      SELECT ActivityDate
+      FROM Task
+      WHERE Huddle_Generated__c = TRUE
+      ORDER BY ActivityDate ASC
+    ];
+    Assert.areEqual(3, tasks.size());
+    for (Task t : tasks) {
+      Assert.isTrue(
+        t.ActivityDate < Date.today(),
+        'A task from a three-week-old huddle is already overdue, not due next week'
+      );
+    }
+    Assert.areEqual(
+      Date.today().addDays(-20),
+      tasks[0].ActivityDate,
+      '"tomorrow" means the day after the meeting'
+    );
+  }
+
+  @IsTest
+  static void decisionsAgeFromTheMeetingNotFromWhenItWasLogged() {
+    Opportunity opp = Huddle_TestUtil.createOpportunity();
+    // A huddle held three weeks ago, only written up now.
+    Huddle_Strategy_Log__c log = Huddle_TestUtil.createStrategyLog(
+      opp.Id,
+      Huddle_TestUtil.FULL_RECAP,
+      Date.today().addDays(-21)
+    );
+
+    Huddle_IdentifyOpenDecisionsInvocable.Request req = new Huddle_IdentifyOpenDecisionsInvocable.Request();
+    req.strategyLogId = log.Id;
+    req.opportunityId = opp.Id;
+
+    Test.startTest();
+    Huddle_IdentifyOpenDecisionsInvocable.run(
+      new List<Huddle_IdentifyOpenDecisionsInvocable.Request>{ req }
+    );
+    Test.stopTest();
+
+    Huddle_Open_Decision__c d = [
+      SELECT Raised_On__c, Needed_By__c, Days_Open__c
+      FROM Huddle_Open_Decision__c
+      LIMIT 1
+    ];
+    Assert.areEqual(
+      Date.today().addDays(-21),
+      d.Raised_On__c,
+      'The question has been open since the meeting, not since the write-up'
+    );
+    Assert.areEqual(
+      21,
+      d.Days_Open__c,
+      'Aging counts from the meeting, so a late write-up does not reset the clock'
+    );
+    Assert.areEqual(
+      Date.today().addDays(-17),
+      d.Needed_By__c,
+      '"before the next call" was a deadline set in the room, and it has passed'
     );
   }
 

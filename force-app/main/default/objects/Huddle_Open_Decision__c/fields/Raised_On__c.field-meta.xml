@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Raised_On__c</fullName>
+    <label>Raised On</label>
+    <type>Date</type>
+    <required>false</required>
+    <description>The date the meeting raised this question, taken from the strategy log's meeting date. Aging runs from here rather than from CreatedDate, so a huddle written up a week late still shows its open questions as a week old.</description>
+</CustomField>

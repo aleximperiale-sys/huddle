@@ -48,13 +48,22 @@ public class Huddle_TestUtil {
     Id oppId,
     String recap
   ) {
+    return createStrategyLog(oppId, recap, Date.today());
+  }
+
+  /** A strategy log for a meeting held on a given date, for exercising aging. */
+  public static Huddle_Strategy_Log__c createStrategyLog(
+    Id oppId,
+    String recap,
+    Date meetingDate
+  ) {
     Huddle_MeetingParse parse = Huddle_ExtractionService.parse(recap);
     Huddle_Strategy_Log__c log = new Huddle_Strategy_Log__c(
       Opportunity__c = oppId,
       Meeting_Recap__c = recap,
       Strategy_Summary__c = parse.strategySummary,
       Decision_Reasoning__c = parse.reasoning,
-      Meeting_Date__c = Date.today(),
+      Meeting_Date__c = meetingDate,
       Logged_By__c = UserInfo.getUserId(),
       Internal_Only__c = true,
       Source_Channel__c = 'Chat',

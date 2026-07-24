@@ -9,7 +9,7 @@
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>CREATED_DATE</field>
+        <field>Meeting_Date__c</field>
         <operation>equals</operation>
         <value>LAST_N_DAYS:7</value>
     </filters>

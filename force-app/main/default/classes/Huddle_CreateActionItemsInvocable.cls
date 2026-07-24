@@ -114,7 +114,9 @@ public with sharing class Huddle_CreateActionItemsInvocable {
       return r;
     }
 
-    List<Planned> plan = buildPlan(parse, repId, req);
+    // "By Friday" was said in the meeting, so the clock starts there. A huddle
+    // written up late produces tasks that are already overdue, which is the truth.
+    List<Planned> plan = buildPlan(parse, repId, req, meetingDateFor(logId));
 
     if (!r.applied) {
       // Preview only. Nothing is written until the attendee confirms this list.
@@ -190,7 +192,8 @@ public with sharing class Huddle_CreateActionItemsInvocable {
   private static List<Planned> buildPlan(
     Huddle_MeetingParse parse,
     Id repId,
-    Request req
+    Request req,
+    Date meetingDate
   ) {
     Map<Integer, String> overrides = parseOverrides(req.ownerOverrides);
     Set<Integer> skips = parseSkips(req.skipItems);
@@ -227,7 +230,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
       Planned p = new Planned();
       p.itemNumber = itemNumber;
       p.item = item;
-      p.dueDate = Date.today()
+      p.dueDate = meetingDate
         .addDays(
           item.dueInDays == null
             ? Huddle_Constants.DEFAULT_ACTION_DUE_DAYS
@@ -339,6 +342,23 @@ public with sharing class Huddle_CreateActionItemsInvocable {
       }
     }
     return out;
+  }
+
+  /** When the huddle happened; due-date cues are relative to it, not to today. */
+  private static Date meetingDateFor(Id strategyLogId) {
+    if (strategyLogId == null) {
+      return Date.today();
+    }
+    List<Huddle_Strategy_Log__c> logs = [
+      SELECT Meeting_Date__c
+      FROM Huddle_Strategy_Log__c
+      WHERE Id = :strategyLogId
+      LIMIT 1
+    ];
+    if (logs.isEmpty() || logs[0].Meeting_Date__c == null) {
+      return Date.today();
+    }
+    return logs[0].Meeting_Date__c;
   }
 
   private static Id resolveOpportunity(String supplied, Id strategyLogId) {

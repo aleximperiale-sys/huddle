@@ -6,7 +6,7 @@
     <precision>4</precision>
     <scale>0</scale>
     <required>false</required>
-    <formula>IF(ISPICKVAL(Status__c, "Resolved"), 0, TODAY() - DATEVALUE(CreatedDate))</formula>
+    <formula>IF(ISPICKVAL(Status__c, &quot;Resolved&quot;), 0, TODAY() - BLANKVALUE(Raised_On__c, DATEVALUE(CreatedDate)))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <description>How long this has been hanging. Drives the aging list view and the dashboard rollup of questions nobody has come back to.</description>
+    <description>How long this has been hanging, measured from the meeting that raised it (falling back to CreatedDate when no meeting date was captured). Drives the aging list view and the dashboard rollup of questions nobody has come back to.</description>
 </CustomField>
