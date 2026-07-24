@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategy_Log__c</fullName>
+    <label>Strategy Log</label>
+    <type>Lookup</type>
+    <referenceTo>Huddle_Strategy_Log__c</referenceTo>
+    <relationshipName>Open_Decisions</relationshipName>
+    <relationshipLabel>Open Decisions</relationshipLabel>
+    <required>false</required>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The meeting that raised this question, so the surrounding context is one click away.</description>
+</CustomField>

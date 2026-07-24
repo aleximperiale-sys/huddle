@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>An unresolved question the strategy meeting explicitly left open ("we still need to decide X before the next call"). Tracked as a distinct record with a status so it cannot quietly disappear into the general notes, and so a manager can see everything hanging across the pipeline in one place.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Huddle Open Decision</label>
+    <nameField>
+        <displayFormat>DEC-{00000}</displayFormat>
+        <label>Open Decision Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Huddle Open Decisions</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

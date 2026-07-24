@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Huddle_Generated__c</fullName>
+    <label>Huddle Generated</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <description>Marks a Task that Huddle created from a strategy meeting, so action items stay separable from a rep's own manually-created tasks.</description>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Assigned_To__c</fullName>
+    <label>Assigned To</label>
+    <type>Lookup</type>
+    <referenceTo>User</referenceTo>
+    <relationshipName>Huddle_Change_Logs_Assigned</relationshipName>
+    <relationshipLabel>Huddle Change Logs Assigned</relationshipLabel>
+    <required>false</required>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Who the work landed on. Because Huddle assigns Tasks across people, "who got assigned what" is a first-class audit column, not a detail buried on the Task.</description>
+</CustomField>

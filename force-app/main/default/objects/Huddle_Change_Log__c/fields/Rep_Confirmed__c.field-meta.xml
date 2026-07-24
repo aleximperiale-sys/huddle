@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Rep_Confirmed__c</fullName>
+    <label>Rep Confirmed</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <description>True when the attendee explicitly confirmed this action before it was written. Cross-person Task assignment is never written without it.</description>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source_Strategy_Log__c</fullName>
+    <label>Source Strategy Log</label>
+    <type>Lookup</type>
+    <referenceTo>Huddle_Strategy_Log__c</referenceTo>
+    <relationshipName>Change_Logs</relationshipName>
+    <relationshipLabel>Change Logs</relationshipLabel>
+    <required>false</required>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The meeting recap this change came out of. Every row traces back to the words that caused it.</description>
+</CustomField>

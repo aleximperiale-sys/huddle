@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Needed_By__c</fullName>
+    <label>Needed By</label>
+    <type>Date</type>
+    <required>false</required>
+    <description>The deadline the meeting attached to the question, when it stated one. Left blank rather than guessed.</description>
+</CustomField>

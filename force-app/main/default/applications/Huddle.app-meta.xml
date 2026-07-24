@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Huddle</label>
+    <description>Review and audit surface for the Huddle internal strategy agent: every strategy session logged, every action item assigned, and every decision still unresolved across the team's pipeline.</description>
+    <navType>Standard</navType>
+    <uiType>Lightning</uiType>
+    <formFactors>Large</formFactors>
+    <brand>
+        <headerColor>#0B5CAB</headerColor>
+        <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
+    </brand>
+    <tabs>Huddle_Home</tabs>
+    <tabs>Huddle_Change_Log</tabs>
+    <tabs>Huddle_Strategy_Log__c</tabs>
+    <tabs>Huddle_Open_Decision__c</tabs>
+    <tabs>standard-Task</tabs>
+    <tabs>Huddle_Change_Log__c</tabs>
+    <tabs>standard-Opportunity</tabs>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+</CustomApplication>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Decision_Reasoning__c</fullName>
+    <label>Decision Reasoning</label>
+    <type>LongTextArea</type>
+    <length>32768</length>
+    <visibleLines>6</visibleLines>
+    <required>false</required>
+    <description>Why the team decided what it decided. This is the field that matters most to someone joining the deal later; outcomes without reasoning get re-litigated.</description>
+</CustomField>

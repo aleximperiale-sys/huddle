@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Meeting_Recap__c</fullName>
+    <label>Meeting Recap</label>
+    <type>LongTextArea</type>
+    <length>131072</length>
+    <visibleLines>10</visibleLines>
+    <required>false</required>
+    <description>The raw recap exactly as the attendee entered it. Preserved verbatim so every extracted item can be traced back to the words that produced it.</description>
+</CustomField>

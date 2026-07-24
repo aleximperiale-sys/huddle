@@ -1,0 +1,74 @@
+<template>
+  <template if:true={hasActivity}>
+    <div class="slds-box slds-box_x-small slds-theme_shade">
+      <div
+        class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread"
+      >
+        <div class="slds-grid slds-grid_vertical-align-center">
+          <lightning-icon
+            icon-name="custom:custom18"
+            size="x-small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          <div>
+            <div class="slds-text-body_regular">{badgeLabel}</div>
+            <div class="slds-text-body_small slds-text-color_weak">
+              {internalNote}
+            </div>
+          </div>
+        </div>
+        <lightning-button
+          variant="base"
+          label={toggleLabel}
+          onclick={toggle}
+        ></lightning-button>
+      </div>
+
+      <template if:true={hasOpenDecisions}>
+        <div
+          class="slds-p-top_x-small slds-text-body_small slds-text-color_error"
+        >
+          {openDecisionLabel}
+        </div>
+      </template>
+
+      <template if:true={expanded}>
+        <ul class="slds-has-dividers_bottom-space slds-p-top_x-small">
+          <template for:each={rows} for:item="row">
+            <li key={row.id} class="slds-item">
+              <div class="slds-text-body_small">{row.title}</div>
+              <div class="slds-grid slds-grid_align-spread">
+                <span class="slds-text-body_small slds-text-color_weak"
+                  >{row.meta}</span
+                >
+                <template if:true={row.strategyLogId}>
+                  <a
+                    data-id={row.strategyLogId}
+                    onclick={openRecord}
+                    class="slds-text-body_small"
+                    >View meeting recap</a
+                  >
+                </template>
+              </div>
+            </li>
+          </template>
+        </ul>
+        <template if:true={hasMore}>
+          <div
+            class="slds-p-top_x-small slds-text-body_small slds-text-color_weak"
+          >
+            {moreLabel}
+          </div>
+        </template>
+      </template>
+    </div>
+  </template>
+
+  <template if:false={hasActivity}>
+    <div
+      class="slds-box slds-box_x-small slds-theme_shade slds-text-body_small slds-text-color_weak"
+    >
+      Huddle hasn't logged a strategy session on this deal yet.
+    </div>
+  </template>
+</template>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Low_Confidence__c</fullName>
+    <label>Low Confidence</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <description>Set when the recap was too thin to extract confidently. Huddle degrades to asking rather than guessing.</description>
+</CustomField>

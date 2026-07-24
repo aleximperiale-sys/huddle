@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Huddle_Owner_Unclear__c</fullName>
+    <label>Huddle Owner Unclear</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <description>Set when the recap named an action item but not a resolvable owner. Huddle flags the ambiguity and leaves the Task with the person entering the notes rather than guessing who is responsible.</description>
+</CustomField>

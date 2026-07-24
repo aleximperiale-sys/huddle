@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Extraction_JSON__c</fullName>
+    <label>Extraction JSON</label>
+    <type>LongTextArea</type>
+    <length>131072</length>
+    <visibleLines>5</visibleLines>
+    <required>false</required>
+    <description>The single structured parse of the recap, cached at log time so every other topic reuses one extraction instead of re-parsing the text differently.</description>
+</CustomField>

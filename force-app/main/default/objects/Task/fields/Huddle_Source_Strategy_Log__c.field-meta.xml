@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Huddle_Source_Strategy_Log__c</fullName>
+    <label>Huddle Source Strategy Log</label>
+    <type>Lookup</type>
+    <referenceTo>Huddle_Strategy_Log__c</referenceTo>
+    <relationshipName>Action_Items</relationshipName>
+    <relationshipLabel>Action Items</relationshipLabel>
+    <required>false</required>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The meeting this action item came from, so the assignee can read the reasoning behind the ask.</description>
+</CustomField>
