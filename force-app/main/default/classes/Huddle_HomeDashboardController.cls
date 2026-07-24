@@ -46,6 +46,10 @@ public with sharing class Huddle_HomeDashboardController {
     public Integer actionItemsOwnerUnclear = 0;
     @AuraEnabled
     public Integer openDecisions = 0;
+    // Resolved is what makes "open" a ratio rather than a bare count, which is
+    // what the dashboard's decision ring actually plots.
+    @AuraEnabled
+    public Integer decisionsResolved = 0;
     @AuraEnabled
     public Integer agingDecisionCount = 0;
     @AuraEnabled
@@ -92,6 +96,12 @@ public with sharing class Huddle_HomeDashboardController {
       SELECT COUNT()
       FROM Huddle_Open_Decision__c
       WHERE Status__c = :Huddle_Constants.DECISION_OPEN
+    ];
+
+    s.decisionsResolved = [
+      SELECT COUNT()
+      FROM Huddle_Open_Decision__c
+      WHERE Status__c = :Huddle_Constants.DECISION_RESOLVED
     ];
 
     for (Huddle_Open_Decision__c d : [

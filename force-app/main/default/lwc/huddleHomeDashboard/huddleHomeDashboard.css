@@ -1,6 +1,284 @@
-.huddle-bar {
-  height: var(--slds-g-spacing-3, 0.75rem);
-  border-radius: var(--slds-g-radius-border-2, 0.75rem);
-  background: var(--slds-g-color-accent-container-1, #1b96ff);
-  transition: width 0.3s ease;
+/*
+ * Huddle's visual language. Colors are assigned by the job they do, not by taste:
+ * one accent hue carries every magnitude mark (rings, bars, the trend area), and
+ * the status ramp is reserved for state and never reused as a series color.
+ *
+ * The accent clears 3:1 on both surfaces (#2a78d6 on white, #3987e5 on the dark
+ * card). The status steps are deliberately not all 3:1 on light — warning sits at
+ * 1.83 — so every status mark ships with an icon and a text label and never
+ * carries meaning by color alone.
+ */
+:host {
+  display: block;
+
+  /* accent ramp — the only hue that encodes magnitude */
+  --huddle-accent: #2a78d6;
+  --huddle-track: #cde2fb; /* meter track: a lighter step of the same ramp */
+
+  /* status — reserved for state, always paired with icon + label */
+  --huddle-good: #0ca30c;
+  --huddle-warning: #fab219;
+  --huddle-critical: #d03b3b;
+
+  /* chrome & ink */
+  --huddle-surface: #ffffff;
+  --huddle-ink: #181818;
+  --huddle-ink-secondary: #54698d;
+  --huddle-ink-muted: #747474;
+  --huddle-hairline: #e5e5e5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --huddle-accent: #3987e5;
+    --huddle-track: #184f95;
+    --huddle-surface: #1b1b1b;
+    --huddle-ink: #ffffff;
+    --huddle-ink-secondary: #c9c9c9;
+    --huddle-ink-muted: #a0a0a0;
+    --huddle-hairline: #3a3a3a;
+  }
+}
+
+/* ---- KPI tiles ---- */
+
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.tile__figure {
+  /* Proportional figures: tabular-nums makes a number like 121 look loose at
+     display sizes. Tabular is reserved for the table view's columns. */
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--huddle-ink);
+}
+
+.tile__label {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-secondary);
+  line-height: 1.3;
+}
+
+.tile__sub {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-muted);
+}
+
+/* ---- radial meter ---- */
+
+.ring {
+  flex: 0 0 auto;
+}
+
+.ring__track {
+  stroke: var(--huddle-track);
+}
+
+.ring__fill {
+  stroke: var(--huddle-accent);
+  transition: stroke-dasharray 0.5s ease;
+}
+
+.ring__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  fill: var(--huddle-ink);
+}
+
+/* ---- horizontal data bars ---- */
+
+.bars {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem 1rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 34%) 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bar-row__label {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-secondary);
+  overflow-wrap: anywhere;
+}
+
+.bar-row__track {
+  height: 0.75rem; /* thin marks; never fill the band */
+  background: var(--huddle-hairline);
+  border-radius: 0.125rem;
+  overflow: hidden;
+}
+
+.bar-row__fill {
+  height: 100%;
+  background: var(--huddle-accent);
+  /* 4px rounded data-end, square at the baseline */
+  border-radius: 0 0.25rem 0.25rem 0;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.bar-row__value {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink);
+  min-width: 2ch;
+  text-align: right;
+}
+
+/* ---- trend area ---- */
+
+.trend {
+  display: block;
+  width: 100%;
+  /* Height follows the viewBox aspect. Pinning a height instead would letterbox
+     the plot into a centred strip on any card wider than the viewBox ratio. */
+  height: auto;
+}
+
+.trend__area {
+  fill: var(--huddle-accent);
+  opacity: 0.1; /* a wash, never a saturated block */
+}
+
+.trend__line {
+  fill: none;
+  stroke: var(--huddle-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trend__grid {
+  stroke: var(--huddle-hairline);
+  stroke-width: 1; /* hairline, solid — never dashed */
+}
+
+.trend__dot {
+  fill: var(--huddle-accent);
+  /* 2px surface ring keeps the end marker legible where it crosses the line */
+  stroke: var(--huddle-surface);
+  stroke-width: 2;
+}
+
+.trend__tick {
+  font-size: 0.625rem;
+  fill: var(--huddle-ink-muted);
+}
+
+.trend__endlabel {
+  font-size: 0.688rem;
+  font-weight: 600;
+  fill: var(--huddle-ink);
+}
+
+.trend__hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.trend__cursor {
+  stroke: var(--huddle-ink-muted);
+  stroke-width: 1;
+}
+
+/* ---- aging decisions ---- */
+
+.aging-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--huddle-hairline);
+}
+
+.aging-item:last-child {
+  border-bottom: none;
+}
+
+.aging-item__question {
+  font-size: 0.813rem;
+  color: var(--huddle-ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.aging-item__question:hover {
+  text-decoration: underline;
+}
+
+.aging-item__meta {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-muted);
+}
+
+.aging-item__age {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--huddle-ink-secondary);
+}
+
+/* Status text pairs with an icon and a word, so severity never rests on hue.
+   The warning step is sub-3:1 on white, so text uses an ink-safe darker step. */
+.status--warning {
+  color: #8a5a00;
+}
+
+.status--critical {
+  color: var(--huddle-critical);
+}
+
+@media (prefers-color-scheme: dark) {
+  .status--warning {
+    color: var(--huddle-warning);
+  }
+}
+
+/* ---- table view (the WCAG-clean twin of every chart above) ---- */
+
+.table-view {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.table-view th,
+.table-view td {
+  text-align: left;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--huddle-hairline);
+}
+
+.table-view td:last-child,
+.table-view th:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.plot-wrap {
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--huddle-ink);
+  color: var(--huddle-surface);
+  font-size: 0.688rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  transform: translate(-50%, -140%);
+  z-index: 2;
 }

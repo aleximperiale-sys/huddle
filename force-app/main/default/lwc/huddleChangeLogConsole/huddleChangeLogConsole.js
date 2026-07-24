@@ -3,58 +3,23 @@ import { NavigationMixin } from "lightning/navigation";
 import getChanges from "@salesforce/apex/Huddle_ChangeLogConsoleController.getChanges";
 import getFilterOptions from "@salesforce/apex/Huddle_ChangeLogConsoleController.getFilterOptions";
 
-// "Assigned to" sits early and wide on purpose: the reason a manager opens this tab
-// is to check that work landed on the right people.
-const COLUMNS = [
-  { label: "Change #", fieldName: "name", type: "text", fixedWidth: 110 },
-  { label: "Type", fieldName: "changeType", type: "text", fixedWidth: 140 },
-  { label: "Opportunity", fieldName: "opportunityName", type: "text" },
-  {
-    label: "Record",
-    fieldName: "relatedRecordName",
-    type: "text",
-    wrapText: true
-  },
-  { label: "Assigned to", fieldName: "assignedToName", type: "text" },
-  { label: "Detail", fieldName: "detail", type: "text", wrapText: true },
-  { label: "Entered by", fieldName: "repName", type: "text" },
-  {
-    label: "Confirmed",
-    fieldName: "repConfirmed",
-    type: "boolean",
-    fixedWidth: 95
-  },
-  {
-    label: "When",
-    fieldName: "createdDate",
-    type: "date",
-    typeAttributes: {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    }
-  },
-  {
-    type: "action",
-    typeAttributes: {
-      rowActions: [
-        { label: "Open source meeting recap", name: "open_strategy_log" },
-        { label: "Open the record", name: "open_record" },
-        { label: "Open the opportunity", name: "open_opportunity" }
-      ]
-    }
-  }
-];
+// Each change type gets an icon, so the type is legible without reading the label
+// and without spending a color on it.
+const TYPE_ICONS = {
+  "Strategy Logged": "utility:note",
+  "Task Created": "utility:task",
+  "Decision Raised": "utility:question",
+  "Decision Resolved": "utility:check",
+  "Digest Generated": "utility:summarydetail"
+};
 
 export default class HuddleChangeLogConsole extends NavigationMixin(
   LightningElement
 ) {
-  columns = COLUMNS;
   @track rows = [];
   @track error;
   isLoading = false;
+  showTable = false;
 
   repFilter = "";
   opportunityFilter = "";
@@ -113,6 +78,64 @@ export default class HuddleChangeLogConsole extends NavigationMixin(
     }
   }
 
+  /** Timeline entries: one per audited action, newest first. */
+  get entries() {
+    return this.rows.map((r) => ({
+      id: r.id,
+      icon: TYPE_ICONS[r.changeType] || "utility:record",
+      changeType: r.changeType,
+      name: r.name,
+      recordName: r.relatedRecordName,
+      detail: r.detail,
+      opportunityName: r.opportunityName,
+      assignedToName: r.assignedToName,
+      hasAssignee: Boolean(r.assignedToName),
+      repName: r.repName,
+      when: this.formatWhen(r.createdDate),
+      confirmed: r.repConfirmed,
+      confirmedLabel: r.repConfirmed
+        ? "Confirmed by rep"
+        : "No confirmation needed",
+      confirmedIcon: r.repConfirmed ? "utility:check" : "utility:dash",
+      confirmedClass: r.repConfirmed ? "chip chip--confirmed" : "chip",
+      strategyLogId: r.sourceStrategyLogId,
+      strategyLogName: r.sourceStrategyLogName,
+      hasStrategyLog: Boolean(r.sourceStrategyLogId),
+      relatedRecordId: r.relatedRecordId,
+      hasRelatedRecord: Boolean(r.relatedRecordId),
+      opportunityId: r.opportunityId,
+      hasOpportunity: Boolean(r.opportunityId)
+    }));
+  }
+
+  // ---- summary strip, computed off whatever slice is currently filtered ----
+
+  get stats() {
+    const rows = this.rows || [];
+    const count = (type) => rows.filter((r) => r.changeType === type).length;
+    return {
+      total: rows.length,
+      strategies: count("Strategy Logged"),
+      tasks: count("Task Created"),
+      decisions: count("Decision Raised"),
+      assignees: new Set(
+        rows.filter((r) => r.assignedToName).map((r) => r.assignedToName)
+      ).size
+    };
+  }
+
+  formatWhen(value) {
+    if (!value) {
+      return "";
+    }
+    return new Date(value).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
   handleRep(e) {
     this.repFilter = e.detail.value;
     this.loadData();
@@ -147,19 +170,30 @@ export default class HuddleChangeLogConsole extends NavigationMixin(
     this.loadData();
   }
 
-  handleRowAction(event) {
-    const action = event.detail.action.name;
-    const row = event.detail.row;
-    if (action === "open_strategy_log" && row.sourceStrategyLogId) {
-      this.navigateTo(row.sourceStrategyLogId);
-    } else if (action === "open_record" && row.relatedRecordId) {
-      this.navigateTo(row.relatedRecordId);
-    } else if (action === "open_opportunity" && row.opportunityId) {
-      this.navigateTo(row.opportunityId);
-    }
+  toggleTable() {
+    this.showTable = !this.showTable;
+  }
+
+  get tableLabel() {
+    return this.showTable ? "Timeline view" : "Table view";
+  }
+
+  openStrategyLog(event) {
+    this.navigateTo(event.currentTarget.dataset.id);
+  }
+
+  openRelatedRecord(event) {
+    this.navigateTo(event.currentTarget.dataset.id);
+  }
+
+  openOpportunity(event) {
+    this.navigateTo(event.currentTarget.dataset.id);
   }
 
   navigateTo(recordId) {
+    if (!recordId) {
+      return;
+    }
     this[NavigationMixin.Navigate]({
       type: "standard__recordPage",
       attributes: { recordId, actionName: "view" }

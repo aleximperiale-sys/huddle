@@ -3,7 +3,9 @@ import { NavigationMixin } from "lightning/navigation";
 import getOpportunitySummary from "@salesforce/apex/Huddle_ChangeLogConsoleController.getOpportunitySummary";
 import getChangesForOpportunity from "@salesforce/apex/Huddle_ChangeLogConsoleController.getChangesForOpportunity";
 
-const MAX_VISIBLE = 10;
+const MAX_VISIBLE = 8;
+const RING_R = 18;
+const RING_C = 2 * Math.PI * RING_R;
 
 export default class HuddleOpportunityStrategyBadge extends NavigationMixin(
   LightningElement
@@ -41,30 +43,45 @@ export default class HuddleOpportunityStrategyBadge extends NavigationMixin(
     );
   }
 
-  get badgeLabel() {
-    if (!this.summary) {
-      return "";
-    }
-    const sessions = this.summary.strategySessions;
-    const items = this.summary.actionItems;
-    return `Huddle has logged ${sessions} strategy session${sessions === 1 ? "" : "s"} and ${items} action item${
-      items === 1 ? "" : "s"
-    }`;
+  get sessions() {
+    return this.summary?.strategySessions || 0;
   }
 
-  // Said out loud on the record page, because this component sits next to
-  // customer-facing activity and the distinction has to be unmissable.
-  get internalNote() {
-    return "Internal deal strategy — never surfaced to the customer.";
+  get actionItems() {
+    return this.summary?.actionItems || 0;
+  }
+
+  get openDecisions() {
+    return this.summary?.openDecisions || 0;
+  }
+
+  /**
+   * A meter needs a limit to be meaningful. Open decisions are a share of every
+   * decision this deal has raised, so the ring plots what is still unresolved
+   * against the total rather than dressing a bare count up as a ratio.
+   */
+  get decisionRing() {
+    const open = this.openDecisions;
+    const raised = this.changes.filter(
+      (c) => c.changeType === "Decision Raised"
+    ).length;
+    const total = Math.max(raised, open);
+    const pct = total > 0 ? open / total : 0;
+    return {
+      r: RING_R,
+      dash: `${(pct * RING_C).toFixed(2)} ${RING_C.toFixed(2)}`,
+      label: String(open),
+      alt: `${open} of ${total} decisions on this deal are still unresolved`
+    };
   }
 
   get hasOpenDecisions() {
-    return this.summary && this.summary.openDecisions > 0;
+    return this.openDecisions > 0;
   }
 
   get openDecisionLabel() {
-    const n = this.summary.openDecisions;
-    return `${n} decision${n === 1 ? "" : "s"} still unresolved on this deal.`;
+    const n = this.openDecisions;
+    return `${n} decision${n === 1 ? "" : "s"} still unresolved on this deal`;
   }
 
   get toggleLabel() {
@@ -76,7 +93,8 @@ export default class HuddleOpportunityStrategyBadge extends NavigationMixin(
       id: c.id,
       title: `${c.changeType}: ${c.relatedRecordName || "(unnamed)"}`,
       meta: this.buildMeta(c),
-      strategyLogId: c.sourceStrategyLogId
+      strategyLogId: c.sourceStrategyLogId,
+      hasStrategyLog: Boolean(c.sourceStrategyLogId)
     }));
   }
 
@@ -95,8 +113,7 @@ export default class HuddleOpportunityStrategyBadge extends NavigationMixin(
     const who = change.assignedToName
       ? ` · assigned to ${change.assignedToName}`
       : "";
-    const by = change.repName ? ` · entered by ${change.repName}` : "";
-    return `${when}${who}${by}`;
+    return `${when}${who}`;
   }
 
   toggle() {

@@ -1,20 +1,17 @@
 <template>
   <template if:true={hasActivity}>
-    <div class="slds-box slds-box_x-small slds-theme_shade">
-      <div
-        class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread"
-      >
-        <div class="slds-grid slds-grid_vertical-align-center">
-          <lightning-icon
-            icon-name="custom:custom18"
-            size="x-small"
-            class="slds-m-right_x-small"
-          ></lightning-icon>
-          <div>
-            <div class="slds-text-body_regular">{badgeLabel}</div>
-            <div class="slds-text-body_small slds-text-color_weak">
-              {internalNote}
-            </div>
+    <div class="badge">
+      <div class="badge__head">
+        <div>
+          <div class="badge__title">
+            <lightning-icon
+              icon-name="custom:custom18"
+              size="x-small"
+            ></lightning-icon>
+            <span>Huddle strategy history</span>
+          </div>
+          <div class="badge__internal">
+            Internal deal strategy — never surfaced to the customer.
           </div>
         </div>
         <lightning-button
@@ -24,51 +21,124 @@
         ></lightning-button>
       </div>
 
+      <div class="stats">
+        <div class="stat">
+          <lightning-icon
+            icon-name="utility:groups"
+            size="x-small"
+            alternative-text="Strategy sessions"
+          ></lightning-icon>
+          <div>
+            <div class="stat__figure">{sessions}</div>
+            <div class="stat__label">strategy sessions</div>
+          </div>
+        </div>
+
+        <div class="stat">
+          <lightning-icon
+            icon-name="utility:task"
+            size="x-small"
+            alternative-text="Action items"
+          ></lightning-icon>
+          <div>
+            <div class="stat__figure">{actionItems}</div>
+            <div class="stat__label">action items</div>
+          </div>
+        </div>
+
+        <div class="stat">
+          <svg
+            width="44"
+            height="44"
+            viewBox="0 0 44 44"
+            role="img"
+            aria-label={decisionRing.alt}
+          >
+            <circle
+              class="ring__track"
+              cx="22"
+              cy="22"
+              r={decisionRing.r}
+              fill="none"
+              stroke-width="5"
+            ></circle>
+            <circle
+              class="ring__fill"
+              cx="22"
+              cy="22"
+              r={decisionRing.r}
+              fill="none"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-dasharray={decisionRing.dash}
+              transform="rotate(-90 22 22)"
+            ></circle>
+            <text
+              class="ring__value"
+              x="22"
+              y="22"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              {decisionRing.label}
+            </text>
+          </svg>
+          <div>
+            <div class="stat__label">decisions still unresolved</div>
+          </div>
+        </div>
+      </div>
+
       <template if:true={hasOpenDecisions}>
-        <div
-          class="slds-p-top_x-small slds-text-body_small slds-text-color_error"
-        >
-          {openDecisionLabel}
+        <div class="alert">
+          <lightning-icon
+            icon-name="utility:warning"
+            variant="warning"
+            size="xx-small"
+            alternative-text="Unresolved"
+          ></lightning-icon>
+          <span>{openDecisionLabel}</span>
         </div>
       </template>
 
       <template if:true={expanded}>
-        <ul class="slds-has-dividers_bottom-space slds-p-top_x-small">
+        <div class="history">
           <template for:each={rows} for:item="row">
-            <li key={row.id} class="slds-item">
-              <div class="slds-text-body_small">{row.title}</div>
-              <div class="slds-grid slds-grid_align-spread">
-                <span class="slds-text-body_small slds-text-color_weak"
-                  >{row.meta}</span
-                >
-                <template if:true={row.strategyLogId}>
+            <div key={row.id} class="history__item">
+              <div class="history__title">{row.title}</div>
+              <div class="history__meta">
+                <span>{row.meta}</span>
+                <template if:true={row.hasStrategyLog}>
                   <a
+                    class="history__link"
                     data-id={row.strategyLogId}
                     onclick={openRecord}
-                    class="slds-text-body_small"
                     >View meeting recap</a
                   >
                 </template>
               </div>
-            </li>
+            </div>
           </template>
-        </ul>
-        <template if:true={hasMore}>
-          <div
-            class="slds-p-top_x-small slds-text-body_small slds-text-color_weak"
-          >
-            {moreLabel}
-          </div>
-        </template>
+          <template if:true={hasMore}>
+            <div class="empty slds-p-top_x-small">{moreLabel}</div>
+          </template>
+        </div>
       </template>
     </div>
   </template>
 
   <template if:false={hasActivity}>
-    <div
-      class="slds-box slds-box_x-small slds-theme_shade slds-text-body_small slds-text-color_weak"
-    >
-      Huddle hasn't logged a strategy session on this deal yet.
+    <div class="badge">
+      <div class="badge__title">
+        <lightning-icon
+          icon-name="custom:custom18"
+          size="x-small"
+        ></lightning-icon>
+        <span>Huddle strategy history</span>
+      </div>
+      <div class="empty slds-p-top_xx-small">
+        No strategy session has been logged on this deal yet.
+      </div>
     </div>
   </template>
 </template>

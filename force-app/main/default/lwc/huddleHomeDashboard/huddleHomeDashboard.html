@@ -1,81 +1,276 @@
 <template>
-  <div class="slds-grid slds-gutters slds-wrap slds-p-bottom_small">
-    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
-      <lightning-card>
-        <div class="slds-p-around_medium slds-text-align_center">
-          <div class="slds-text-heading_large">{sessionsThisWeek}</div>
-          <div class="slds-text-body_small slds-text-color_weak">
-            strategy sessions this week
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
-      <lightning-card>
-        <div class="slds-p-around_medium slds-text-align_center">
-          <div class="slds-text-heading_large">{actionItemProgress}</div>
-          <div class="slds-text-body_small slds-text-color_weak">
-            action items completed / created
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
-      <lightning-card>
-        <div class="slds-p-around_medium slds-text-align_center">
-          <div class="slds-text-heading_large">{openDecisions}</div>
-          <div class="slds-text-body_small slds-text-color_weak">
-            decisions still unresolved
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
-      <lightning-card>
-        <div class="slds-p-around_medium slds-text-align_center">
-          <div class={unclearClass}>{actionItemsOwnerUnclear}</div>
-          <div class="slds-text-body_small slds-text-color_weak">
-            action items with an unclear owner
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-  </div>
-
   <template if:true={error}>
     <div class="slds-text-color_error slds-p-around_small" role="alert">
       {error}
     </div>
   </template>
 
-  <div class="slds-grid slds-gutters slds-wrap">
+  <!-- KPI row. Two meters (a value against its limit) and two counts. -->
+  <div class="slds-grid slds-gutters_x-small slds-wrap slds-p-bottom_small">
+    <div
+      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
+    >
+      <lightning-card>
+        <div class="tile">
+          <svg
+            class="ring"
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            role="img"
+            aria-label={actionRing.alt}
+          >
+            <circle
+              class="ring__track"
+              cx="32"
+              cy="32"
+              r={actionRing.r}
+              fill="none"
+              stroke-width="6"
+            ></circle>
+            <circle
+              class="ring__fill"
+              cx="32"
+              cy="32"
+              r={actionRing.r}
+              fill="none"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-dasharray={actionRing.dash}
+              transform="rotate(-90 32 32)"
+            ></circle>
+            <text
+              class="ring__value"
+              x="32"
+              y="32"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              {actionRing.label}
+            </text>
+          </svg>
+          <div>
+            <div class="tile__figure">{actionRing.value}</div>
+            <div class="tile__label">action items completed</div>
+            <div class="tile__sub">of {actionRing.total} created</div>
+          </div>
+        </div>
+      </lightning-card>
+    </div>
+
+    <div
+      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
+    >
+      <lightning-card>
+        <div class="tile">
+          <svg
+            class="ring"
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            role="img"
+            aria-label={decisionRing.alt}
+          >
+            <circle
+              class="ring__track"
+              cx="32"
+              cy="32"
+              r={decisionRing.r}
+              fill="none"
+              stroke-width="6"
+            ></circle>
+            <circle
+              class="ring__fill"
+              cx="32"
+              cy="32"
+              r={decisionRing.r}
+              fill="none"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-dasharray={decisionRing.dash}
+              transform="rotate(-90 32 32)"
+            ></circle>
+            <text
+              class="ring__value"
+              x="32"
+              y="32"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              {decisionRing.label}
+            </text>
+          </svg>
+          <div>
+            <div class="tile__figure">{openDecisions}</div>
+            <div class="tile__label">decisions still unresolved</div>
+            <div class="tile__sub">{decisionRing.value} resolved so far</div>
+          </div>
+        </div>
+      </lightning-card>
+    </div>
+
+    <div
+      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
+    >
+      <lightning-card>
+        <div class="tile">
+          <lightning-icon
+            icon-name="utility:groups"
+            size="small"
+            alternative-text="Strategy sessions"
+          ></lightning-icon>
+          <div>
+            <div class="tile__figure">{sessionsThisWeek}</div>
+            <div class="tile__label">strategy sessions this week</div>
+            <div class="tile__sub">{sessionsAllTime} logged all time</div>
+          </div>
+        </div>
+      </lightning-card>
+    </div>
+
+    <div
+      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
+    >
+      <lightning-card>
+        <div class="tile">
+          <lightning-icon
+            icon-name={unclearIcon}
+            variant={unclearIconVariant}
+            size="small"
+            alternative-text={unclearWord}
+          ></lightning-icon>
+          <div>
+            <div class="tile__figure">{ownerUnclear}</div>
+            <div class="tile__label">action items with an unclear owner</div>
+            <div class={unclearClass}>{unclearWord}</div>
+          </div>
+        </div>
+      </lightning-card>
+    </div>
+  </div>
+
+  <!-- Trend. One series, so the title names it and no legend box is needed. -->
+  <div class="slds-p-bottom_small">
+    <lightning-card
+      title="Huddle activity, last 7 days"
+      icon-name="standard:metrics"
+    >
+      <lightning-button
+        slot="actions"
+        variant="base"
+        label={tableLabel}
+        onclick={toggleTable}
+      ></lightning-button>
+      <template if:true={hasTrend}>
+        <div class="plot-wrap slds-p-horizontal_medium slds-p-bottom_small">
+          <svg
+            class="trend"
+            viewBox={trend.viewBox}
+            role="img"
+            aria-label="Daily count of Huddle actions over the last seven days"
+          >
+            <line
+              class="trend__grid"
+              x1={trend.left}
+              y1={trend.baseline}
+              x2={trend.right}
+              y2={trend.baseline}
+            ></line>
+            <line
+              class="trend__grid"
+              x1={trend.left}
+              y1={trend.top}
+              x2={trend.right}
+              y2={trend.top}
+            ></line>
+            <path class="trend__area" d={trend.area}></path>
+            <path class="trend__line" d={trend.line}></path>
+
+            <text class="trend__tick" x={trend.left} y={trend.tickY}>
+              {trend.firstLabel}
+            </text>
+            <text
+              class="trend__tick"
+              x={trend.right}
+              y={trend.tickY}
+              text-anchor="end"
+            >
+              {trend.lastLabel}
+            </text>
+            <text class="trend__tick" x={trend.left} y={trend.top} dy="-4">
+              {trend.maxLabel}
+            </text>
+
+            <circle
+              class="trend__dot"
+              cx={trend.end.x}
+              cy={trend.end.y}
+              r="5"
+            ></circle>
+            <text
+              class="trend__endlabel"
+              x={trend.end.x}
+              y={trend.end.y}
+              dx="10"
+              dominant-baseline="central"
+            >
+              {trend.end.count}
+            </text>
+
+            <template for:each={trend.points} for:item="p">
+              <rect
+                key={p.key}
+                class="trend__hit"
+                data-key={p.key}
+                x={p.hitX}
+                y="0"
+                width={p.hitW}
+                height="170"
+                onmouseenter={handleTrendEnter}
+                onmouseleave={handleTrendLeave}
+              ></rect>
+            </template>
+          </svg>
+
+          <template if:true={hoveredTooltip}>
+            <div class="tooltip" style={hoveredTooltip.style}>
+              {hoveredTooltip.text}
+            </div>
+          </template>
+        </div>
+      </template>
+      <template if:false={hasTrend}>
+        <p class="slds-p-around_medium slds-text-color_weak">
+          No activity recorded yet.
+        </p>
+      </template>
+    </lightning-card>
+  </div>
+
+  <div class="slds-grid slds-gutters_x-small slds-wrap">
     <div
       class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small"
     >
       <lightning-card
-        title="Open decisions aging past a week"
-        icon-name="standard:question_feed"
+        title="What Huddle did this week"
+        icon-name="standard:record"
       >
-        <template if:true={hasAging}>
-          <ul class="slds-has-dividers_bottom-space slds-p-horizontal_medium">
-            <template for:each={agingDecisions} for:item="d">
-              <li key={d.id} class="slds-item">
-                <a
-                  data-id={d.id}
-                  onclick={openRecord}
-                  class="slds-text-body_regular"
-                  >{d.question}</a
-                >
-                <div class="slds-text-body_small slds-text-color_weak">
-                  {d.opportunityName} &middot; open {d.daysOpen} days
+        <template if:true={hasByType}>
+          <div class="bars">
+            <template for:each={byType} for:item="row">
+              <div key={row.key} class="bar-row">
+                <span class="bar-row__label">{row.label}</span>
+                <div class="bar-row__track">
+                  <div class="bar-row__fill" style={row.style}></div>
                 </div>
-              </li>
+                <span class="bar-row__value">{row.count}</span>
+              </div>
             </template>
-          </ul>
+          </div>
         </template>
-        <template if:false={hasAging}>
+        <template if:false={hasByType}>
           <p class="slds-p-around_medium slds-text-color_weak">
-            Nothing has been left hanging longer than a week.
+            Nothing logged this week yet.
           </p>
         </template>
       </lightning-card>
@@ -86,17 +281,17 @@
     >
       <lightning-card title="Most active this week" icon-name="standard:user">
         <template if:true={hasContributors}>
-          <ul class="slds-has-dividers_bottom-space slds-p-horizontal_medium">
-            <template for:each={topContributors} for:item="c">
-              <li
-                key={c.label}
-                class="slds-item slds-grid slds-grid_align-spread"
-              >
-                <span>{c.label}</span>
-                <span class="slds-badge">{c.count}</span>
-              </li>
+          <div class="bars">
+            <template for:each={topContributors} for:item="row">
+              <div key={row.key} class="bar-row">
+                <span class="bar-row__label">{row.label}</span>
+                <div class="bar-row__track">
+                  <div class="bar-row__fill" style={row.style}></div>
+                </div>
+                <span class="bar-row__value">{row.count}</span>
+              </div>
             </template>
-          </ul>
+          </div>
         </template>
         <template if:false={hasContributors}>
           <p class="slds-p-around_medium slds-text-color_weak">
@@ -108,30 +303,64 @@
   </div>
 
   <lightning-card
-    title="Huddle activity, last 7 days"
-    icon-name="standard:metrics"
+    title="Open decisions aging past a week"
+    icon-name="standard:question_feed"
   >
-    <div class="slds-p-horizontal_medium slds-p-bottom_medium">
-      <template for:each={trend} for:item="t">
-        <div
-          key={t.key}
-          class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xxx-small"
-        >
-          <div
-            class="slds-size_1-of-4 slds-text-body_small slds-text-color_weak"
-          >
-            {t.label}
+    <template if:true={hasAging}>
+      <div class="slds-p-horizontal_medium slds-p-bottom_small">
+        <template for:each={agingDecisions} for:item="d">
+          <div key={d.id} class="aging-item">
+            <lightning-icon
+              icon-name={d.icon}
+              variant={d.iconVariant}
+              size="x-small"
+              alternative-text="Aging"
+            ></lightning-icon>
+            <div>
+              <a
+                href="#"
+                data-id={d.id}
+                onclick={openRecord}
+                class="aging-item__question"
+                >{d.question}</a
+              >
+              <div class="aging-item__meta">{d.opportunityName}</div>
+            </div>
+            <span class={d.severityClass}>{d.ageLabel}</span>
           </div>
-          <div
-            class="slds-size_3-of-4 slds-grid slds-grid_vertical-align-center"
-          >
-            <div class="huddle-bar" style={t.style}></div>
-            <span class="slds-p-left_x-small slds-text-body_small"
-              >{t.count}</span
-            >
-          </div>
-        </div>
-      </template>
-    </div>
+        </template>
+      </div>
+    </template>
+    <template if:false={hasAging}>
+      <p class="slds-p-around_medium slds-text-color_weak">
+        Nothing has been left hanging longer than a week.
+      </p>
+    </template>
   </lightning-card>
+
+  <!-- The table view: every plotted value reachable without relying on color. -->
+  <template if:true={showTable}>
+    <div class="slds-p-top_small">
+      <lightning-card title="Table view" icon-name="utility:table">
+        <table class="table-view">
+          <thead>
+            <tr>
+              <th scope="col">Group</th>
+              <th scope="col">Label</th>
+              <th scope="col">Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template for:each={tableRows} for:item="row">
+              <tr key={row.key}>
+                <td>{row.group}</td>
+                <td>{row.label}</td>
+                <td>{row.count}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </lightning-card>
+    </div>
+  </template>
 </template>

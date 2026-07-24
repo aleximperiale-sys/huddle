@@ -1,12 +1,20 @@
 <template>
   <lightning-card title="Huddle Change Log" icon-name="custom:custom18">
-    <span slot="actions" class="slds-text-body_small slds-text-color_weak"
-      >{rowCountLabel}</span
-    >
+    <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
+      <span class="slds-text-body_small slds-text-color_weak slds-p-right_small"
+        >{rowCountLabel}</span
+      >
+      <lightning-button
+        variant="base"
+        label={tableLabel}
+        onclick={toggleTable}
+      ></lightning-button>
+    </div>
 
-    <div class="slds-p-horizontal_medium slds-p-bottom_small">
+    <!-- One filter row above everything it scopes. -->
+    <div class="filters">
       <div
-        class="slds-grid slds-gutters slds-wrap slds-grid_vertical-align-end"
+        class="slds-grid slds-gutters_x-small slds-wrap slds-grid_vertical-align-end"
       >
         <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-combobox
@@ -26,7 +34,7 @@
         </div>
         <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-combobox
-            label="Change Type"
+            label="Change type"
             value={typeFilter}
             options={typeOptions}
             onchange={handleType}
@@ -58,6 +66,31 @@
       </div>
     </div>
 
+    <template if:true={hasRows}>
+      <div class="strip">
+        <div class="strip__stat">
+          <span class="strip__value">{stats.total}</span>
+          <span class="strip__label">actions</span>
+        </div>
+        <div class="strip__stat">
+          <span class="strip__value">{stats.strategies}</span>
+          <span class="strip__label">strategies logged</span>
+        </div>
+        <div class="strip__stat">
+          <span class="strip__value">{stats.tasks}</span>
+          <span class="strip__label">tasks created</span>
+        </div>
+        <div class="strip__stat">
+          <span class="strip__value">{stats.decisions}</span>
+          <span class="strip__label">decisions raised</span>
+        </div>
+        <div class="strip__stat">
+          <span class="strip__value">{stats.assignees}</span>
+          <span class="strip__label">people assigned work</span>
+        </div>
+      </div>
+    </template>
+
     <template if:true={isLoading}>
       <lightning-spinner
         alternative-text="Loading"
@@ -66,23 +99,122 @@
     </template>
 
     <template if:true={error}>
-      <div class="slds-p-horizontal_medium slds-text-color_error" role="alert">
+      <div class="slds-p-around_medium slds-text-color_error" role="alert">
         {error}
       </div>
     </template>
 
     <template if:true={hasRows}>
-      <div class="slds-p-horizontal_x-small" style="min-height: 8rem">
-        <lightning-datatable
-          key-field="id"
-          data={rows}
-          columns={columns}
-          hide-checkbox-column
-          onrowaction={handleRowAction}
-          column-widths-mode="auto"
-        >
-        </lightning-datatable>
-      </div>
+      <template if:false={showTable}>
+        <div class="timeline">
+          <template for:each={entries} for:item="e">
+            <div key={e.id} class="entry">
+              <div class="entry__marker">
+                <lightning-icon
+                  icon-name={e.icon}
+                  size="xx-small"
+                  alternative-text={e.changeType}
+                ></lightning-icon>
+              </div>
+              <div class="entry__body">
+                <div class="entry__head">
+                  <span class="entry__type">{e.changeType}</span>
+                  <span class="entry__record">{e.recordName}</span>
+                </div>
+
+                <template if:true={e.detail}>
+                  <div class="entry__detail">{e.detail}</div>
+                </template>
+
+                <div class="entry__meta">
+                  <template if:true={e.hasAssignee}>
+                    <span class="chip">
+                      <lightning-icon
+                        icon-name="utility:user"
+                        size="xx-small"
+                        alternative-text="Assigned to"
+                      ></lightning-icon>
+                      {e.assignedToName}
+                    </span>
+                  </template>
+                  <span class={e.confirmedClass}>
+                    <lightning-icon
+                      icon-name={e.confirmedIcon}
+                      size="xx-small"
+                      alternative-text={e.confirmedLabel}
+                    ></lightning-icon>
+                    {e.confirmedLabel}
+                  </span>
+                  <span>{e.when}</span>
+                  <span>entered by {e.repName}</span>
+                  <span>{e.name}</span>
+                </div>
+
+                <div class="entry__links">
+                  <template if:true={e.hasStrategyLog}>
+                    <a
+                      class="entry__link"
+                      data-id={e.strategyLogId}
+                      onclick={openStrategyLog}
+                      >Source meeting recap</a
+                    >
+                  </template>
+                  <template if:true={e.hasRelatedRecord}>
+                    <a
+                      class="entry__link"
+                      data-id={e.relatedRecordId}
+                      onclick={openRelatedRecord}
+                      >Open the record</a
+                    >
+                  </template>
+                  <template if:true={e.hasOpportunity}>
+                    <a
+                      class="entry__link"
+                      data-id={e.opportunityId}
+                      onclick={openOpportunity}
+                      >{e.opportunityName}</a
+                    >
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <!-- Table view: the same audit rows, scannable in columns. -->
+      <template if:true={showTable}>
+        <div class="table-scroll slds-p-horizontal_small slds-p-bottom_medium">
+          <table class="table-view">
+            <thead>
+              <tr>
+                <th scope="col">Change #</th>
+                <th scope="col">Type</th>
+                <th scope="col">Record</th>
+                <th scope="col">Assigned to</th>
+                <th scope="col">Opportunity</th>
+                <th scope="col">Confirmed</th>
+                <th scope="col">Entered by</th>
+                <th scope="col">When</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={entries} for:item="e">
+                <tr key={e.id}>
+                  <td>{e.name}</td>
+                  <td>{e.changeType}</td>
+                  <td>{e.recordName}</td>
+                  <td>{e.assignedToName}</td>
+                  <td>{e.opportunityName}</td>
+                  <td>{e.confirmedLabel}</td>
+                  <td>{e.repName}</td>
+                  <td>{e.when}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </template>
     </template>
 
     <template if:false={hasRows}>

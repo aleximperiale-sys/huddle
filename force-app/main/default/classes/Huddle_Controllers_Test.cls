@@ -168,6 +168,11 @@ private class Huddle_Controllers_Test {
     Assert.areEqual(1, s.actionItemsCompleted);
     Assert.areEqual(1, s.openDecisions);
     Assert.areEqual(
+      0,
+      s.decisionsResolved,
+      'Nothing is resolved yet, so the decision ring plots 0 of 1'
+    );
+    Assert.areEqual(
       7,
       s.trend.size(),
       'The trend is zero-filled across seven days'
@@ -203,6 +208,37 @@ private class Huddle_Controllers_Test {
       1,
       s.actionItemsOwnerUnclear,
       'Tasks Huddle could not confidently assign need their own count'
+    );
+  }
+
+  @IsTest
+  static void resolvingADecisionMovesItOutOfTheOpenCount() {
+    Opportunity opp = Huddle_TestUtil.createOpportunity();
+    seedDeal(opp);
+
+    Huddle_Open_Decision__c d = [
+      SELECT Id, Status__c, Resolution__c
+      FROM Huddle_Open_Decision__c
+      LIMIT 1
+    ];
+    d.Status__c = Huddle_Constants.DECISION_RESOLVED;
+    d.Resolution__c = 'Decided to bring the CISO in after the technical review.';
+    update d;
+
+    Test.startTest();
+    Huddle_HomeDashboardController.Summary s = Huddle_HomeDashboardController.getSummary();
+    Test.stopTest();
+
+    Assert.areEqual(0, s.openDecisions, 'It is no longer hanging');
+    Assert.areEqual(
+      1,
+      s.decisionsResolved,
+      'The decision ring needs the resolved side of the ratio to move'
+    );
+    Assert.areEqual(
+      0,
+      s.agingDecisionCount,
+      'A resolved decision stops aging, whatever its Days Open formula said'
     );
   }
 
