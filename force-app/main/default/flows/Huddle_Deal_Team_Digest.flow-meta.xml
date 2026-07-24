@@ -109,6 +109,7 @@
     <variables>
         <name>sessionLimit</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
@@ -123,6 +124,7 @@
     <variables>
         <name>strategySessionCount</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
@@ -130,6 +132,7 @@
     <variables>
         <name>openActionItemCount</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
@@ -137,6 +140,7 @@
     <variables>
         <name>openDecisionCount</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>

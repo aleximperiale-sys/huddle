@@ -187,17 +187,17 @@
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Task.Huddle_Generated__c</field>
+        <field>Activity.Huddle_Generated__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Task.Huddle_Source_Strategy_Log__c</field>
+        <field>Activity.Huddle_Source_Strategy_Log__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Task.Huddle_Owner_Unclear__c</field>
+        <field>Activity.Huddle_Owner_Unclear__c</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>

@@ -71,7 +71,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
 
   /** One action item joined to the owner Huddle resolved (or failed to resolve) for it. */
   private class Planned {
-    Integer number;
+    Integer itemNumber;
     Huddle_MeetingParse.ActionItem item;
     Id ownerId;
     String ownerLabel;
@@ -197,10 +197,10 @@ public with sharing class Huddle_CreateActionItemsInvocable {
 
     List<String> hints = new List<String>();
     for (Integer i = 0; i < parse.actionItems.size(); i++) {
-      Integer number = i + 1;
+      Integer itemNumber = i + 1;
       hints.add(
-        overrides.containsKey(number)
-          ? overrides.get(number)
+        overrides.containsKey(itemNumber)
+          ? overrides.get(itemNumber)
           : parse.actionItems[i].ownerHint
       );
     }
@@ -211,21 +211,21 @@ public with sharing class Huddle_CreateActionItemsInvocable {
 
     List<Planned> plan = new List<Planned>();
     for (Integer i = 0; i < parse.actionItems.size(); i++) {
-      Integer number = i + 1;
-      if (skips.contains(number)) {
+      Integer itemNumber = i + 1;
+      if (skips.contains(itemNumber)) {
         continue;
       }
       Huddle_MeetingParse.ActionItem item = parse.actionItems[i];
-      String hint = hints[i];
+      String hintText = hints[i];
 
       // An override given as a raw user id is taken at face value: the attendee
       // picked it explicitly, which is stronger evidence than any extraction.
-      Id overrideId = overrides.containsKey(number)
-        ? Huddle_Util.toIdOrNull(overrides.get(number))
+      Id overrideId = overrides.containsKey(itemNumber)
+        ? Huddle_Util.toIdOrNull(overrides.get(itemNumber))
         : null;
 
       Planned p = new Planned();
-      p.number = number;
+      p.itemNumber = itemNumber;
       p.item = item;
       p.dueDate = Date.today()
         .addDays(
@@ -240,7 +240,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
         p.ownerUnclear = false;
       } else {
         Huddle_OwnerResolver.Resolution res = resolutions.get(
-          Huddle_OwnerResolver.normalizeKey(hint)
+          Huddle_OwnerResolver.normalizeKey(hintText)
         );
         if (res != null && res.resolved) {
           p.ownerId = res.userId;
@@ -283,7 +283,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
     List<String> lines = new List<String>();
     for (Planned p : plan) {
       lines.add(
-        p.number +
+        p.itemNumber +
           '. "' +
           p.item.text +
           '" → ' +

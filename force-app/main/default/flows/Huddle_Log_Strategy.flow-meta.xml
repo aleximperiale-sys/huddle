@@ -211,6 +211,7 @@
     <variables>
         <name>actionItemCount</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
@@ -218,6 +219,7 @@
     <variables>
         <name>openQuestionCount</name>
         <dataType>Number</dataType>
+        <scale>0</scale>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>

@@ -11,7 +11,7 @@
 public with sharing class Huddle_OwnerResolver {
   public class Resolution {
     @AuraEnabled
-    public String hint; // What the recap said.
+    public String ownerHint; // What the recap said.
     @AuraEnabled
     public Id userId; // Resolved user, null when unresolved.
     @AuraEnabled
@@ -36,44 +36,44 @@ public with sharing class Huddle_OwnerResolver {
     Map<String, Resolution> out = new Map<String, Resolution>();
     Set<String> searchable = new Set<String>();
 
-    for (String hint : hints) {
-      String key = normalizeKey(hint);
+    for (String ownerHint : hints) {
+      String key = normalizeKey(ownerHint);
       if (out.containsKey(key)) {
         continue;
       }
       Resolution r = new Resolution();
-      r.hint = hint;
+      r.ownerHint = ownerHint;
       out.put(key, r);
 
-      if (String.isBlank(hint)) {
+      if (String.isBlank(ownerHint)) {
         r.reason = 'The recap named the action but not who owns it.';
         continue;
       }
-      if (hint.equalsIgnoreCase('me')) {
+      if (ownerHint.equalsIgnoreCase('me')) {
         r.userId = fallbackId;
         r.resolved = true;
         r.userName = nameFor(fallbackId);
         continue;
       }
-      if (isRoleOnly(hint)) {
+      if (isRoleOnly(ownerHint)) {
         r.reason =
           'The recap named a role ("' +
-          hint +
+          ownerHint +
           '") rather than a person, so Huddle cannot tell which user is meant.';
         continue;
       }
-      searchable.add(hint);
+      searchable.add(ownerHint);
     }
 
     if (searchable.isEmpty()) {
       return out;
     }
 
-    // Gather candidates for every searchable hint in a single query. LIKE
-    // patterns are built from the hint but bound, never concatenated into SOQL.
+    // Gather candidates for every searchable ownerHint in a single query. LIKE
+    // patterns are built from the ownerHint but bound, never concatenated into SOQL.
     List<String> patterns = new List<String>();
-    for (String hint : searchable) {
-      patterns.add(hint + '%');
+    for (String ownerHint : searchable) {
+      patterns.add(ownerHint + '%');
     }
     List<User> candidates = [
       SELECT Id, Name, FirstName, LastName
@@ -85,19 +85,19 @@ public with sharing class Huddle_OwnerResolver {
       LIMIT 200
     ];
 
-    for (String hint : searchable) {
-      Resolution r = out.get(normalizeKey(hint));
-      List<User> matches = matchesFor(hint, candidates);
+    for (String ownerHint : searchable) {
+      Resolution r = out.get(normalizeKey(ownerHint));
+      List<User> matches = matchesFor(ownerHint, candidates);
       if (matches.size() == 1) {
         r.userId = matches[0].Id;
         r.userName = matches[0].Name;
         r.resolved = true;
       } else if (matches.isEmpty()) {
-        r.reason = 'No active user matches "' + hint + '".';
+        r.reason = 'No active user matches "' + ownerHint + '".';
       } else {
         r.reason =
           '"' +
-          hint +
+          ownerHint +
           '" matches ' +
           matches.size() +
           ' active users (' +
@@ -109,17 +109,20 @@ public with sharing class Huddle_OwnerResolver {
   }
 
   /** Look up a single hint. Convenience wrapper over resolveAll. */
-  public static Resolution resolve(String hint, Id fallbackId) {
-    return resolveAll(new List<String>{ hint }, fallbackId)
-      .get(normalizeKey(hint));
+  public static Resolution resolve(String ownerHint, Id fallbackId) {
+    return resolveAll(new List<String>{ ownerHint }, fallbackId)
+      .get(normalizeKey(ownerHint));
   }
 
-  public static String normalizeKey(String hint) {
-    return String.isBlank(hint) ? '' : hint.trim().toLowerCase();
+  public static String normalizeKey(String ownerHint) {
+    return String.isBlank(ownerHint) ? '' : ownerHint.trim().toLowerCase();
   }
 
-  private static List<User> matchesFor(String hint, List<User> candidates) {
-    String h = hint.trim().toLowerCase();
+  private static List<User> matchesFor(
+    String ownerHint,
+    List<User> candidates
+  ) {
+    String h = ownerHint.trim().toLowerCase();
     List<User> exact = new List<User>();
     List<User> partial = new List<User>();
     for (User u : candidates) {
@@ -135,7 +138,7 @@ public with sharing class Huddle_OwnerResolver {
     return !exact.isEmpty() ? exact : partial;
   }
 
-  private static Boolean isRoleOnly(String hint) {
+  private static Boolean isRoleOnly(String ownerHint) {
     Set<String> roles = new Set<String>{
       'sales engineer',
       'deal desk',
@@ -148,7 +151,7 @@ public with sharing class Huddle_OwnerResolver {
       'product',
       'marketing'
     };
-    return roles.contains(hint.trim().toLowerCase());
+    return roles.contains(ownerHint.trim().toLowerCase());
   }
 
   private static String nameFor(Id userId) {

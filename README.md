@@ -148,9 +148,11 @@ One record per action Huddle takes.
 | `Rep_Confirmed__c`                                                          | True when the attendee explicitly approved before the write                             |
 | `Related_Record_Id__c`, `Object_API_Name__c`, `Opportunity__c`, `Detail__c` | What changed, where                                                                     |
 
-### Task extensions
+### Activity extensions
 
 `Huddle_Generated__c`, `Huddle_Source_Strategy_Log__c`, `Huddle_Owner_Unclear__c`, so Huddle's action items stay separable from a rep's own tasks and ambiguity is visible on the record.
+
+These are defined on **`Activity`**, not `Task`. Salesforce requires custom activity fields to be created on the shared `Activity` object; they then surface on `Task` (and `Event`), which is why the Apex reads `Task.Huddle_Generated__c` while the metadata and field-level security live under `objects/Activity/`.
 
 ## How extraction actually works
 
@@ -174,7 +176,7 @@ Anything unresolved becomes a Task flagged `Huddle_Owner_Unclear__c`, parked wit
 
 ## Component inventory
 
-**Custom objects** — `Huddle_Strategy_Log__c`, `Huddle_Open_Decision__c`, `Huddle_Change_Log__c`, plus three custom fields on `Task`.
+**Custom objects** — `Huddle_Strategy_Log__c`, `Huddle_Open_Decision__c`, `Huddle_Change_Log__c`, plus three custom fields on `Activity` (which surface on `Task`).
 
 **Apex** (16 classes)
 
@@ -245,6 +247,8 @@ npm run prettier:verify # formatting (XML is excluded, see below)
 sf apex run test --target-org huddle-dev --code-coverage --result-format human
 ```
 
+Last verified run: **35 tests, 100% pass rate**, per-class coverage 80–100%.
+
 The Apex tests concentrate on the negative cases, since those are what the design goals actually assert:
 
 - a decision with no named owner produces **zero** action items
@@ -265,7 +269,7 @@ force-app/main/default/
 ├── flexipages/                        # Huddle Home, Change Log
 ├── flows/                             # 4 autolaunched flows
 ├── lwc/                               # 3 components
-├── objects/                           # 3 custom objects + Task fields + list views
+├── objects/                           # 3 custom objects + Activity fields + list views
 ├── permissionsets/                    # Huddle_Agent_User, Huddle_Reviewer
 └── tabs/                              # 5 tabs
 ```
