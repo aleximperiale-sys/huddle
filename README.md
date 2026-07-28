@@ -8,6 +8,26 @@ Everything Huddle logs is **internal-only at the data-model level**, and every a
 
 ---
 
+## Screenshots
+
+![Huddle Home dashboard](docs/screenshots/01-huddle.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Huddle Home — activity, action items, and open decisions](docs/screenshots/02-huddle-home.png)
+_Huddle Home — activity, action items, and open decisions_
+
+![Change Log](docs/screenshots/03-change-log.png)
+_Change Log — strategies, decisions, and tasks logged from every meeting_
+
+![Huddle Strategy Logs list view](docs/screenshots/04-huddle-strategy-logs.png)
+_Huddle Strategy Logs list view_
+
+</details>
+
+---
+
 ## Table of contents
 
 - [Why Huddle](#why-huddle)
