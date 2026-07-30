@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Assigns Huddle_Opportunity_Record_Page as the org-wide desktop record page for
+    Opportunity, so huddleOpportunityStrategyBadge is visible without a manual
+    Lightning App Builder step.
+
+    THIS REPLACES WHATEVER OPPORTUNITY RECORD PAGE THE TARGET ORG IS USING TODAY.
+    Delete this single file to leave the org's existing Opportunity page in place;
+    the flexipage itself still deploys and can then be activated by hand
+    (Setup -> Object Manager -> Opportunity -> Lightning Record Pages).
+-->
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>Huddle_Opportunity_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+</CustomObject>

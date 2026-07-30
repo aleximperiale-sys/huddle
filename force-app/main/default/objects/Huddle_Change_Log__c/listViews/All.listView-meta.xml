@@ -4,8 +4,10 @@
     <columns>NAME</columns>
     <columns>Change_Type__c</columns>
     <columns>Related_Record_Name__c</columns>
+    <columns>Opportunity__c</columns>
     <columns>Assigned_To__c</columns>
     <columns>Created_By_Rep__c</columns>
+    <columns>Rep_Confirmed__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
     <label>All Changes</label>

@@ -1,0 +1,73 @@
+<template>
+  <template lwc:if={isInline}>
+    <div class="alert" role="alert">
+      <lightning-icon
+        icon-name="utility:error"
+        variant="error"
+        size="x-small"
+        alternative-text="Error"
+      ></lightning-icon>
+      <div class="alert__body">
+        <p class="alert__message">{message}</p>
+        <div class="alert__actions">
+          <template lwc:if={hasRetry}>
+            <lightning-button
+              variant="neutral"
+              label={retryButtonLabel}
+              disabled={retrying}
+              onclick={handleRetry}
+            >
+            </lightning-button>
+          </template>
+          <template lwc:if={hasDetail}>
+            <lightning-button
+              variant="base"
+              label={detailToggleLabel}
+              aria-expanded={showDetail}
+              onclick={toggleDetail}
+            ></lightning-button>
+          </template>
+        </div>
+        <template lwc:if={showDetail}>
+          <pre class="alert__detail">{detail}</pre>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <template lwc:else>
+    <div class="block" role="alert">
+      <span class="block__icon">
+        <lightning-icon
+          icon-name="utility:error"
+          variant="error"
+          size="small"
+          alternative-text="Error"
+        ></lightning-icon>
+      </span>
+      <p class="block__message">{message}</p>
+      <div class="block__actions">
+        <template lwc:if={hasRetry}>
+          <lightning-button
+            variant="brand"
+            label={retryButtonLabel}
+            disabled={retrying}
+            onclick={handleRetry}
+          >
+          </lightning-button>
+        </template>
+        <template lwc:if={hasDetail}>
+          <lightning-button
+            variant="base"
+            label={detailToggleLabel}
+            aria-expanded={showDetail}
+            onclick={toggleDetail}
+          ></lightning-button>
+        </template>
+      </div>
+      <template lwc:if={showDetail}>
+        <pre class="block__detail">{detail}</pre>
+      </template>
+    </div>
+  </template>
+</template>

@@ -29,8 +29,8 @@ DEMO_TAG = "Huddle Demo"
 # aren't users (must be flagged "owner unclear"), and explicit open questions.
 DEALS = [
     {
-        "account": f"{DEMO_TAG} — Northwind Traders",
-        "opportunity": "Northwind Traders — Platform Migration",
+        "account": f"{DEMO_TAG} - Northwind Traders",
+        "opportunity": "Northwind Traders - Platform Migration",
         "stage": "Negotiation/Review",
         "amount": 180000,
         "close_in_days": 24,
@@ -73,8 +73,8 @@ DEALS = [
         ],
     },
     {
-        "account": f"{DEMO_TAG} — Acme Logistics",
-        "opportunity": "Acme Logistics — Fleet Analytics",
+        "account": f"{DEMO_TAG} - Acme Logistics",
+        "opportunity": "Acme Logistics - Fleet Analytics",
         "stage": "Proposal/Price Quote",
         "amount": 95000,
         "close_in_days": 12,
@@ -106,8 +106,8 @@ DEALS = [
         ],
     },
     {
-        "account": f"{DEMO_TAG} — Vertex Health",
-        "opportunity": "Vertex Health — Compliance Suite",
+        "account": f"{DEMO_TAG} - Vertex Health",
+        "opportunity": "Vertex Health - Compliance Suite",
         "stage": "Needs Analysis",
         "amount": 240000,
         "close_in_days": 62,
@@ -150,8 +150,8 @@ DEALS = [
         ],
     },
     {
-        "account": f"{DEMO_TAG} — Bluepeak Media",
-        "opportunity": "Bluepeak Media — Enterprise Rollout",
+        "account": f"{DEMO_TAG} - Bluepeak Media",
+        "opportunity": "Bluepeak Media - Enterprise Rollout",
         "stage": "Value Proposition",
         "amount": 310000,
         "close_in_days": 78,
@@ -182,8 +182,8 @@ DEALS = [
         ],
     },
     {
-        "account": f"{DEMO_TAG} — Corvus Bank",
-        "opportunity": "Corvus Bank — Data Residency Program",
+        "account": f"{DEMO_TAG} - Corvus Bank",
+        "opportunity": "Corvus Bank - Data Residency Program",
         "stage": "Qualification",
         "amount": 420000,
         "close_in_days": 95,

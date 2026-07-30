@@ -1,366 +1,578 @@
 <template>
-  <template if:true={error}>
-    <div class="slds-text-color_error slds-p-around_small" role="alert">
-      {error}
-    </div>
-  </template>
-
-  <!-- KPI row. Two meters (a value against its limit) and two counts. -->
-  <div class="slds-grid slds-gutters_x-small slds-wrap slds-p-bottom_small">
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
-    >
-      <lightning-card>
-        <div class="tile">
-          <svg
-            class="ring"
-            width="64"
-            height="64"
-            viewBox="0 0 64 64"
-            role="img"
-            aria-label={actionRing.alt}
-          >
-            <circle
-              class="ring__track"
-              cx="32"
-              cy="32"
-              r={actionRing.r}
-              fill="none"
-              stroke-width="6"
-            ></circle>
-            <circle
-              class="ring__fill"
-              cx="32"
-              cy="32"
-              r={actionRing.r}
-              fill="none"
-              stroke-width="6"
-              stroke-linecap="round"
-              stroke-dasharray={actionRing.dash}
-              transform="rotate(-90 32 32)"
-            ></circle>
-            <text
-              class="ring__value"
-              x="32"
-              y="32"
-              text-anchor="middle"
-              dominant-baseline="central"
-            >
-              {actionRing.label}
-            </text>
-          </svg>
-          <div>
-            <div class="tile__figure">{actionRing.value}</div>
-            <div class="tile__label">action items completed</div>
-            <div class="tile__sub">of {actionRing.total} created</div>
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
-    >
-      <lightning-card>
-        <div class="tile">
-          <svg
-            class="ring"
-            width="64"
-            height="64"
-            viewBox="0 0 64 64"
-            role="img"
-            aria-label={decisionRing.alt}
-          >
-            <circle
-              class="ring__track"
-              cx="32"
-              cy="32"
-              r={decisionRing.r}
-              fill="none"
-              stroke-width="6"
-            ></circle>
-            <circle
-              class="ring__fill"
-              cx="32"
-              cy="32"
-              r={decisionRing.r}
-              fill="none"
-              stroke-width="6"
-              stroke-linecap="round"
-              stroke-dasharray={decisionRing.dash}
-              transform="rotate(-90 32 32)"
-            ></circle>
-            <text
-              class="ring__value"
-              x="32"
-              y="32"
-              text-anchor="middle"
-              dominant-baseline="central"
-            >
-              {decisionRing.label}
-            </text>
-          </svg>
-          <div>
-            <div class="tile__figure">{openDecisions}</div>
-            <div class="tile__label">decisions still unresolved</div>
-            <div class="tile__sub">{decisionRing.value} resolved so far</div>
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
-    >
-      <lightning-card>
-        <div class="tile">
-          <lightning-icon
-            icon-name="utility:groups"
-            size="small"
-            alternative-text="Strategy sessions"
-          ></lightning-icon>
-          <div>
-            <div class="tile__figure">{sessionsThisWeek}</div>
-            <div class="tile__label">strategy sessions this week</div>
-            <div class="tile__sub">{sessionsAllTime} logged all time</div>
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-p-bottom_x-small"
-    >
-      <lightning-card>
-        <div class="tile">
-          <lightning-icon
-            icon-name={unclearIcon}
-            variant={unclearIconVariant}
-            size="small"
-            alternative-text={unclearWord}
-          ></lightning-icon>
-          <div>
-            <div class="tile__figure">{ownerUnclear}</div>
-            <div class="tile__label">action items with an unclear owner</div>
-            <div class={unclearClass}>{unclearWord}</div>
-          </div>
-        </div>
-      </lightning-card>
-    </div>
-  </div>
-
-  <!-- Trend. One series, so the title names it and no legend box is needed. -->
-  <div class="slds-p-bottom_small">
-    <lightning-card
-      title="Huddle activity, last 7 days"
-      icon-name="standard:metrics"
-    >
-      <lightning-button
-        slot="actions"
-        variant="base"
-        label={tableLabel}
-        onclick={toggleTable}
-      ></lightning-button>
-      <template if:true={hasTrend}>
-        <div class="plot-wrap slds-p-horizontal_medium slds-p-bottom_small">
-          <svg
-            class="trend"
-            viewBox={trend.viewBox}
-            role="img"
-            aria-label="Daily count of Huddle actions over the last seven days"
-          >
-            <line
-              class="trend__grid"
-              x1={trend.left}
-              y1={trend.baseline}
-              x2={trend.right}
-              y2={trend.baseline}
-            ></line>
-            <line
-              class="trend__grid"
-              x1={trend.left}
-              y1={trend.top}
-              x2={trend.right}
-              y2={trend.top}
-            ></line>
-            <path class="trend__area" d={trend.area}></path>
-            <path class="trend__line" d={trend.line}></path>
-
-            <text class="trend__tick" x={trend.left} y={trend.tickY}>
-              {trend.firstLabel}
-            </text>
-            <text
-              class="trend__tick"
-              x={trend.right}
-              y={trend.tickY}
-              text-anchor="end"
-            >
-              {trend.lastLabel}
-            </text>
-            <text class="trend__tick" x={trend.left} y={trend.top} dy="-4">
-              {trend.maxLabel}
-            </text>
-
-            <circle
-              class="trend__dot"
-              cx={trend.end.x}
-              cy={trend.end.y}
-              r="5"
-            ></circle>
-            <text
-              class="trend__endlabel"
-              x={trend.end.x}
-              y={trend.end.y}
-              dx="10"
-              dominant-baseline="central"
-            >
-              {trend.end.count}
-            </text>
-
-            <template for:each={trend.points} for:item="p">
-              <rect
-                key={p.key}
-                class="trend__hit"
-                data-key={p.key}
-                x={p.hitX}
-                y="0"
-                width={p.hitW}
-                height="170"
-                onmouseenter={handleTrendEnter}
-                onmouseleave={handleTrendLeave}
-              ></rect>
-            </template>
-          </svg>
-
-          <template if:true={hoveredTooltip}>
-            <div class="tooltip" style={hoveredTooltip.style}>
-              {hoveredTooltip.text}
+  <div class="sheet">
+    <!-- ============================ sheet masthead ========================= -->
+    <header class="sheet__head">
+      <div class="sheet__title">
+        <p class="sheet__eyebrow">Huddle briefing</p>
+        <h1 class="sheet__h1">Before the next deal review</h1>
+        <p class="sheet__date">{todayLabel}</p>
+      </div>
+      <div class="sheet__actions">
+        <p class="sheet__asof" aria-live="polite">{asOfLabel}</p>
+        <div class="sheet__refresh">
+          <template lwc:if={isRefreshing}>
+            <div class="sheet__spinner">
+              <lightning-spinner
+                size="small"
+                variant="brand"
+                alternative-text="Refreshing data"
+              ></lightning-spinner>
             </div>
           </template>
+          <lightning-button
+            variant="neutral"
+            icon-name="utility:refresh"
+            label={refreshLabel}
+            disabled={isRefreshing}
+            onclick={handleRefresh}
+          ></lightning-button>
         </div>
-      </template>
-      <template if:false={hasTrend}>
-        <p class="slds-p-around_medium slds-text-color_weak">
-          No activity recorded yet.
-        </p>
-      </template>
-    </lightning-card>
-  </div>
+      </div>
+    </header>
 
-  <div class="slds-grid slds-gutters_x-small slds-wrap">
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small"
-    >
-      <lightning-card
-        title="What Huddle did this week"
-        icon-name="standard:record"
-      >
-        <template if:true={hasByType}>
-          <div class="bars">
-            <template for:each={byType} for:item="row">
-              <div key={row.key} class="bar-row">
-                <span class="bar-row__label">{row.label}</span>
-                <div class="bar-row__track">
-                  <div class="bar-row__fill" style={row.style}></div>
-                </div>
-                <span class="bar-row__value">{row.count}</span>
-              </div>
-            </template>
-          </div>
-        </template>
-        <template if:false={hasByType}>
-          <p class="slds-p-around_medium slds-text-color_weak">
-            Nothing logged this week yet.
-          </p>
-        </template>
-      </lightning-card>
-    </div>
-
-    <div
-      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small"
-    >
-      <lightning-card title="Most active this week" icon-name="standard:user">
-        <template if:true={hasContributors}>
-          <div class="bars">
-            <template for:each={topContributors} for:item="row">
-              <div key={row.key} class="bar-row">
-                <span class="bar-row__label">{row.label}</span>
-                <div class="bar-row__track">
-                  <div class="bar-row__fill" style={row.style}></div>
-                </div>
-                <span class="bar-row__value">{row.count}</span>
-              </div>
-            </template>
-          </div>
-        </template>
-        <template if:false={hasContributors}>
-          <p class="slds-p-around_medium slds-text-color_weak">
-            No strategy sessions logged this week yet.
-          </p>
-        </template>
-      </lightning-card>
-    </div>
-  </div>
-
-  <lightning-card
-    title="Open decisions aging past a week"
-    icon-name="standard:question_feed"
-  >
-    <template if:true={hasAging}>
-      <div class="slds-p-horizontal_medium slds-p-bottom_small">
-        <template for:each={agingDecisions} for:item="d">
-          <div key={d.id} class="aging-item">
-            <lightning-icon
-              icon-name={d.icon}
-              variant={d.iconVariant}
-              size="x-small"
-              alternative-text="Aging"
-            ></lightning-icon>
-            <div>
-              <a
-                href="#"
-                data-id={d.id}
-                onclick={openRecord}
-                class="aging-item__question"
-                >{d.question}</a
-              >
-              <div class="aging-item__meta">{d.opportunityName}</div>
-            </div>
-            <span class={d.severityClass}>{d.ageLabel}</span>
-          </div>
-        </template>
+    <!-- A refresh that failed on top of good data warns without wiping the sheet. -->
+    <template lwc:if={isStaleWarning}>
+      <div class="sheet__alert">
+        <c-huddle-error-state
+          variant="inline"
+          message={errorMessage}
+          detail={errorDetail}
+          retry-label="Try again"
+          retrying={isRefreshing}
+          onretry={handleRetry}
+        ></c-huddle-error-state>
       </div>
     </template>
-    <template if:false={hasAging}>
-      <p class="slds-p-around_medium slds-text-color_weak">
-        Nothing has been left hanging longer than a week.
-      </p>
-    </template>
-  </lightning-card>
 
-  <!-- The table view: every plotted value reachable without relying on color. -->
-  <template if:true={showTable}>
-    <div class="slds-p-top_small">
-      <lightning-card title="Table view" icon-name="utility:table">
-        <table class="table-view">
-          <thead>
-            <tr>
-              <th scope="col">Group</th>
-              <th scope="col">Label</th>
-              <th scope="col">Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template for:each={tableRows} for:item="row">
-              <tr key={row.key}>
-                <td>{row.group}</td>
-                <td>{row.label}</td>
-                <td>{row.count}</td>
-              </tr>
+    <!-- Nothing loaded at all: the whole sheet is replaced by one recoverable error. -->
+    <template lwc:if={isFatalError}>
+      <c-huddle-error-state
+        message={errorMessage}
+        detail={errorDetail}
+        retry-label="Reload the briefing"
+        retrying={isRefreshing}
+        onretry={handleRetry}
+      ></c-huddle-error-state>
+    </template>
+
+    <template lwc:else>
+      <!-- ===================== 1. THE AGENDA (hero region) ================= -->
+      <section
+        class="region region_hero"
+        aria-label="Open decisions that need resolving"
+      >
+        <c-huddle-section-header
+          variant="hero"
+          eyebrow="Needs a decision"
+          heading="What this team has left unresolved"
+          description={agendaDescription}
+          count-label={agendaCountLabel}
+          icon-name="utility:priority"
+        >
+          <div slot="actions" class="agenda__controls">
+            <lightning-input
+              class="agenda__search"
+              type="search"
+              label="Search open decisions"
+              variant="label-hidden"
+              placeholder="Search question, deal or number"
+              value={searchTerm}
+              onchange={handleSearch}
+            ></lightning-input>
+            <lightning-combobox
+              class="agenda__select"
+              label="Urgency"
+              variant="label-hidden"
+              value={urgencyFilter}
+              options={urgencyOptions}
+              onchange={handleUrgency}
+            ></lightning-combobox>
+            <lightning-combobox
+              class="agenda__select"
+              label="Sort by"
+              variant="label-hidden"
+              value={sortBy}
+              options={sortOptions}
+              onchange={handleSort}
+            ></lightning-combobox>
+            <template lwc:if={agendaFiltersActive}>
+              <lightning-button
+                variant="base"
+                label="Clear"
+                onclick={handleClearAgendaFilters}
+              ></lightning-button>
             </template>
-          </tbody>
-        </table>
-      </lightning-card>
-    </div>
-  </template>
+          </div>
+        </c-huddle-section-header>
+
+        <div class="agenda">
+          <template lwc:if={isInitialLoad}>
+            <c-huddle-skeleton-loader
+              variant="agenda"
+              count="3"
+              label="Loading open decisions"
+            ></c-huddle-skeleton-loader>
+          </template>
+
+          <template lwc:elseif={hasAgendaItems}>
+            <ul class="agenda__list">
+              <template for:each={agendaItems} for:item="item">
+                <li key={item.id} class="agenda__item">
+                  <div class={item.rowClass}>
+                    <lightning-button-icon
+                      class="agenda__toggle"
+                      icon-name={item.toggleIcon}
+                      variant="bare"
+                      size="small"
+                      data-id={item.id}
+                      alternative-text={item.toggleLabel}
+                      title={item.toggleLabel}
+                      aria-expanded={item.isExpandedAttr}
+                      aria-controls={item.detailId}
+                      onclick={toggleAgendaRow}
+                    ></lightning-button-icon>
+
+                    <div class="agenda__body">
+                      <a
+                        href="#"
+                        class="agenda__question"
+                        data-id={item.id}
+                        onclick={openRecord}
+                        >{item.question}</a
+                      >
+                      <p class="agenda__meta">
+                        <span class="agenda__deal">{item.opportunityName}</span>
+                        <span class="agenda__sep" aria-hidden="true">·</span>
+                        <span>{item.name}</span>
+                      </p>
+                    </div>
+
+                    <div class="agenda__urgency">
+                      <p class={item.ageClass}>
+                        <span class="agenda__age-value">{item.ageValue}</span>
+                        <span class="agenda__age-unit">{item.ageUnit}</span>
+                      </p>
+                      <div
+                        class="agenda__agebar"
+                        role="img"
+                        aria-label={item.ageUnit}
+                      >
+                        <div
+                          class={item.ageBarClass}
+                          style={item.ageBarStyle}
+                        ></div>
+                      </div>
+                      <c-huddle-status-badge
+                        tone={item.tone}
+                        label={item.pillLabel}
+                      ></c-huddle-status-badge>
+                    </div>
+                  </div>
+
+                  <template lwc:if={item.expanded}>
+                    <div id={item.detailId} class="agenda__detail">
+                      <dl class="agenda__dl">
+                        <div class="agenda__dl-pair">
+                          <dt>Opportunity</dt>
+                          <dd>{item.opportunityName}</dd>
+                        </div>
+                        <div class="agenda__dl-pair">
+                          <dt>Decision record</dt>
+                          <dd>{item.name}</dd>
+                        </div>
+                        <div class="agenda__dl-pair">
+                          <dt>Deadline</dt>
+                          <dd>
+                            <template lwc:if={item.hasNeededBy}>
+                              <c-huddle-status-badge
+                                tone={item.deadlineTone}
+                                icon-name="utility:date_input"
+                                label={item.deadlineLabel}
+                              ></c-huddle-status-badge>
+                            </template>
+                            <template lwc:else>
+                              <span class="agenda__none"
+                                >No date - the meeting never set one</span
+                              >
+                            </template>
+                          </dd>
+                        </div>
+                      </dl>
+                      <div class="agenda__detail-actions">
+                        <lightning-button
+                          variant="brand"
+                          label="Open the decision"
+                          icon-name="utility:forward"
+                          icon-position="right"
+                          data-id={item.id}
+                          onclick={openRecord}
+                        ></lightning-button>
+                      </div>
+                    </div>
+                  </template>
+                </li>
+              </template>
+            </ul>
+          </template>
+
+          <template lwc:elseif={agendaIsFilteredEmpty}>
+            <c-huddle-empty-state
+              icon-name="utility:filterList"
+              heading="No aging decision matches these controls"
+              message="Widen the urgency filter or clear the search to see the rest of the agenda."
+              action-label="Clear filters"
+              action-variant="neutral"
+              onaction={handleClearAgendaFilters}
+            ></c-huddle-empty-state>
+          </template>
+
+          <template lwc:else>
+            <c-huddle-empty-state
+              icon-name="utility:success"
+              heading="Nothing has been left hanging longer than a week"
+              message="Every question a strategy meeting raised has either been resolved or is still inside its first week. Decisions appear here once they pass seven days open."
+              action-label="Review every open decision"
+              action-variant="neutral"
+              onaction={navigateToOpenDecisions}
+            ></c-huddle-empty-state>
+          </template>
+        </div>
+      </section>
+
+      <!-- ===================== 2. Where the work stands ==================== -->
+      <section class="region" aria-label="This week's measures">
+        <c-huddle-section-header
+          eyebrow="Where the work stands"
+          heading="This week's measures"
+          description="Counts across every deal Huddle has touched. Percentages are against what Huddle itself created, never against the team's whole task list."
+          icon-name="utility:metrics"
+        ></c-huddle-section-header>
+        <div class="kpis">
+          <c-huddle-kpi-card
+            label="decisions still unresolved"
+            value={openDecisions}
+            supporting-text={decisionsSupport}
+            icon-name="utility:question"
+            tone={decisionsTone}
+            progress={decisionsResolvedPct}
+            progress-label={decisionsProgressLabel}
+            status-label={decisionsStatusLabel}
+            status-tone={decisionsStatusTone}
+            loading={isInitialLoad}
+            action-label="Review them"
+            onaction={navigateToOpenDecisions}
+          ></c-huddle-kpi-card>
+
+          <c-huddle-kpi-card
+            label="action items with an unclear owner"
+            value={ownerUnclear}
+            supporting-text={unclearSupport}
+            icon-name={unclearIcon}
+            tone={unclearTone}
+            status-label={unclearStatusLabel}
+            status-tone={unclearStatusTone}
+            loading={isInitialLoad}
+            action-label={unclearAction}
+            onaction={navigateToUnclearTasks}
+          ></c-huddle-kpi-card>
+
+          <c-huddle-kpi-card
+            label="action items completed"
+            value={actionItemsCompleted}
+            supporting-text={actionSupport}
+            icon-name="utility:task"
+            tone="accent"
+            progress={actionCompletionPct}
+            progress-label={actionProgressLabel}
+            empty-message={actionEmptyMessage}
+            loading={isInitialLoad}
+          ></c-huddle-kpi-card>
+
+          <c-huddle-kpi-card
+            label="strategy sessions this week"
+            value={sessionsThisWeek}
+            supporting-text={sessionsSupport}
+            icon-name="utility:groups"
+            tone="neutral"
+            loading={isInitialLoad}
+          ></c-huddle-kpi-card>
+
+          <c-huddle-kpi-card
+            label="audited actions, last 7 days"
+            value={actionsLast7}
+            supporting-text="Every write Huddle made, logged"
+            icon-name="utility:activity"
+            tone="neutral"
+            trend-label={activityTrendLabel}
+            trend-direction={activityTrendDirection}
+            trend-meaning={activityTrendMeaning}
+            loading={isInitialLoad}
+          ></c-huddle-kpi-card>
+        </div>
+      </section>
+
+      <!-- ===================== 3. What the week looked like ================ -->
+      <section class="region" aria-label="Huddle activity this week">
+        <c-huddle-section-header
+          eyebrow="What the week looked like"
+          heading="Huddle activity"
+          description="Daily volume of audited actions, then the same week broken out by what Huddle did and who triggered it."
+          count-label={activitySectionCount}
+          icon-name="utility:trending"
+          collapsible
+          collapsed={activityCollapsed}
+          ontoggle={handleActivityToggle}
+        ></c-huddle-section-header>
+        <template lwc:if={showActivity}>
+          <div class="panel">
+            <template lwc:if={isInitialLoad}>
+              <div class="plot-wrap">
+                <c-huddle-skeleton-loader
+                  variant="chart"
+                  label="Loading activity trend"
+                ></c-huddle-skeleton-loader>
+              </div>
+            </template>
+
+            <template lwc:elseif={hasTrend}>
+              <div class="plot-wrap">
+                <svg
+                  class="trend"
+                  viewBox={trend.viewBox}
+                  role="img"
+                  aria-label="Daily count of audited Huddle actions over the last seven days"
+                >
+                  <line
+                    class="trend__grid"
+                    x1={trend.left}
+                    y1={trend.baseline}
+                    x2={trend.right}
+                    y2={trend.baseline}
+                  ></line>
+                  <line
+                    class="trend__grid"
+                    x1={trend.left}
+                    y1={trend.top}
+                    x2={trend.right}
+                    y2={trend.top}
+                  ></line>
+                  <path class="trend__area" d={trend.area}></path>
+                  <path class="trend__line" d={trend.line}></path>
+
+                  <text class="trend__tick" x={trend.left} y={trend.tickY}>
+                    {trend.firstLabel}
+                  </text>
+                  <text
+                    class="trend__tick"
+                    x={trend.right}
+                    y={trend.tickY}
+                    text-anchor="end"
+                  >
+                    {trend.lastLabel}
+                  </text>
+                  <text
+                    class="trend__tick"
+                    x={trend.left}
+                    y={trend.top}
+                    dy="-4"
+                  >
+                    {trend.maxLabel}
+                  </text>
+
+                  <circle
+                    class="trend__dot"
+                    cx={trend.end.x}
+                    cy={trend.end.y}
+                    r="5"
+                  ></circle>
+                  <text
+                    class="trend__endlabel"
+                    x={trend.end.x}
+                    y={trend.end.y}
+                    dx="10"
+                    dominant-baseline="central"
+                  >
+                    {trend.end.count}
+                  </text>
+
+                  <template for:each={trend.points} for:item="p">
+                    <rect
+                      key={p.key}
+                      class="trend__hit"
+                      data-key={p.key}
+                      x={p.hitX}
+                      y="0"
+                      width={p.hitW}
+                      height="170"
+                      onmouseenter={handleTrendEnter}
+                      onmouseleave={handleTrendLeave}
+                    ></rect>
+                  </template>
+                </svg>
+
+                <template lwc:if={hoveredTooltip}>
+                  <div class="tooltip" style={hoveredTooltip.style}>
+                    {hoveredTooltip.text}
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <template lwc:else>
+              <c-huddle-empty-state
+                icon-name="utility:trending"
+                heading="No audited actions in the last seven days"
+                message="The trend fills in as soon as the agent logs a strategy session, creates an action item or raises a decision."
+                size="compact"
+              ></c-huddle-empty-state>
+            </template>
+
+            <div class="split">
+              <div class="split__col">
+                <c-huddle-section-header
+                  level="3"
+                  heading="What Huddle did"
+                  description="Audited actions this week, by change type."
+                ></c-huddle-section-header>
+                <template lwc:if={isInitialLoad}>
+                  <div class="bars">
+                    <c-huddle-skeleton-loader
+                      variant="bars"
+                      count="4"
+                      label="Loading change types"
+                    ></c-huddle-skeleton-loader>
+                  </div>
+                </template>
+                <template lwc:elseif={hasByType}>
+                  <div class="bars">
+                    <template for:each={byType} for:item="row">
+                      <div key={row.key} class="bar-row">
+                        <span class="bar-row__label">{row.label}</span>
+                        <div
+                          class="bar-row__track"
+                          role="img"
+                          aria-label={row.alt}
+                        >
+                          <div class="bar-row__fill" style={row.style}></div>
+                        </div>
+                        <span class="bar-row__value">{row.count}</span>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template lwc:else>
+                  <c-huddle-empty-state
+                    icon-name="utility:note"
+                    heading="Nothing logged this week yet"
+                    message="Ask the Huddle agent to log a strategy session and it will show up here."
+                    size="compact"
+                  ></c-huddle-empty-state>
+                </template>
+              </div>
+
+              <div class="split__col">
+                <c-huddle-section-header
+                  level="3"
+                  heading="Most active this week"
+                  description="Reps whose meetings produced the most audited actions."
+                ></c-huddle-section-header>
+                <template lwc:if={isInitialLoad}>
+                  <div class="bars">
+                    <c-huddle-skeleton-loader
+                      variant="bars"
+                      count="4"
+                      label="Loading contributors"
+                    ></c-huddle-skeleton-loader>
+                  </div>
+                </template>
+                <template lwc:elseif={hasContributors}>
+                  <div class="bars">
+                    <template for:each={topContributors} for:item="row">
+                      <div key={row.key} class="bar-row">
+                        <span class="bar-row__label">{row.label}</span>
+                        <div
+                          class="bar-row__track"
+                          role="img"
+                          aria-label={row.alt}
+                        >
+                          <div class="bar-row__fill" style={row.style}></div>
+                        </div>
+                        <span class="bar-row__value">{row.count}</span>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template lwc:else>
+                  <c-huddle-empty-state
+                    icon-name="utility:user"
+                    heading="No strategy sessions logged this week yet"
+                    message="Contributors appear once a rep's meeting recap has been logged."
+                    size="compact"
+                  ></c-huddle-empty-state>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ============= 4. Table twin: every plotted value, in text ========= -->
+      <section class="region" aria-label="Every figure as a table">
+        <c-huddle-section-header
+          eyebrow="Accessible twin"
+          heading="Every figure as a table"
+          description="The same values the charts above plot, readable without relying on length or colour."
+          icon-name="utility:table"
+          collapsible
+          collapsed={tableCollapsed}
+          ontoggle={handleTableToggle}
+        ></c-huddle-section-header>
+        <template lwc:if={showTable}>
+          <div class="panel">
+            <template lwc:if={isInitialLoad}>
+              <c-huddle-skeleton-loader
+                variant="rows"
+                count="5"
+                label="Loading table"
+              ></c-huddle-skeleton-loader>
+            </template>
+            <template lwc:elseif={hasTableRows}>
+              <div class="table-scroll">
+                <table class="table-view">
+                  <caption class="slds-assistive-text">
+                    Huddle activity this week by change type, contributor and
+                    day
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Group</th>
+                      <th scope="col">Label</th>
+                      <th scope="col">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={tableRows} for:item="row">
+                      <tr key={row.key}>
+                        <td>{row.group}</td>
+                        <td>{row.label}</td>
+                        <td>{row.count}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+            <template lwc:else>
+              <c-huddle-empty-state
+                icon-name="utility:table"
+                heading="No figures to tabulate yet"
+                message="This table mirrors the charts above, so it fills in at the same time they do."
+                size="compact"
+              ></c-huddle-empty-state>
+            </template>
+          </div>
+        </template>
+      </section>
+    </template>
+  </div>
 </template>

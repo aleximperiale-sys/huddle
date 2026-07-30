@@ -57,7 +57,7 @@ public with sharing class Huddle_ChangeLogService {
         '" due ' +
         (t.ActivityDate == null ? 'unspecified' : t.ActivityDate.format()) +
         (ownerUnclear
-          ? ' — OWNER UNCLEAR, assigned to the note-taker pending reassignment.'
+          ? ' - OWNER UNCLEAR, assigned to the note-taker pending reassignment.'
           : '.'),
       32000
     );

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Huddle Status Badge</masterLabel>
+    <description>Status pill that always pairs its tone with an icon and a written label, so no Huddle state is ever carried by colour alone.</description>
+</LightningComponentBundle>

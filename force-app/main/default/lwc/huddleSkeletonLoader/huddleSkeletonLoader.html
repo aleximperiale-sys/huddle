@@ -1,0 +1,94 @@
+<template>
+  <div class="sk" style={hostStyle} role="status" aria-live="polite">
+    <span class="slds-assistive-text">{label}</span>
+
+    <!-- KPI card: icon block, big figure, label, supporting line, meter. -->
+    <template lwc:if={isKpi}>
+      <div class="sk-kpi">
+        <div class="sk-kpi__head">
+          <div class="sk__block sk__block_icon"></div>
+          <div class="sk__block sk__block_pill"></div>
+        </div>
+        <div class="sk__block sk__block_figure"></div>
+        <div class="sk__block sk__block_label"></div>
+        <div class="sk__block sk__block_meter"></div>
+      </div>
+    </template>
+
+    <!-- Agenda entry: rule-separated rows, each a heading plus a meta line. -->
+    <template lwc:elseif={isAgenda}>
+      <template for:each={items} for:item="item">
+        <div key={item.key} class="sk-agenda">
+          <div class="sk-agenda__rail">
+            <div class="sk__block sk__block_dot"></div>
+          </div>
+          <div class="sk-agenda__body">
+            <div
+              class="sk__block sk__block_line"
+              style={item.primaryStyle}
+            ></div>
+            <div
+              class="sk__block sk__block_meta"
+              style={item.secondaryStyle}
+            ></div>
+          </div>
+          <div class="sk__block sk__block_agepill"></div>
+        </div>
+      </template>
+    </template>
+
+    <!-- Table / list rows. -->
+    <template lwc:elseif={isRows}>
+      <template for:each={items} for:item="item">
+        <div key={item.key} class="sk-row">
+          <div class="sk__block sk__block_cell" style={item.primaryStyle}></div>
+          <div
+            class="sk__block sk__block_cell"
+            style={item.secondaryStyle}
+          ></div>
+          <div class="sk__block sk__block_cell sk__block_cell-short"></div>
+        </div>
+      </template>
+    </template>
+
+    <!-- Labelled horizontal bars. -->
+    <template lwc:elseif={isBars}>
+      <template for:each={items} for:item="item">
+        <div key={item.key} class="sk-bar">
+          <div class="sk__block sk__block_barlabel"></div>
+          <div class="sk__block sk__block_bartrack">
+            <div
+              class="sk__block sk__block_barfill"
+              style={item.barStyle}
+            ></div>
+          </div>
+          <div class="sk__block sk__block_barvalue"></div>
+        </div>
+      </template>
+    </template>
+
+    <!-- Chart plot area. -->
+    <template lwc:elseif={isChart}>
+      <div class="sk__block sk__block_chart"></div>
+    </template>
+
+    <!-- Compact stat. -->
+    <template lwc:elseif={isStat}>
+      <div class="sk-stat">
+        <div class="sk__block sk__block_statvalue"></div>
+        <div class="sk__block sk__block_statlabel"></div>
+      </div>
+    </template>
+
+    <!-- Generic text lines. -->
+    <template lwc:else>
+      <template for:each={items} for:item="item">
+        <div
+          key={item.key}
+          class="sk__block sk__block_line"
+          style={item.primaryStyle}
+        ></div>
+      </template>
+    </template>
+  </div>
+</template>

@@ -1,0 +1,87 @@
+/*
+ * Every tone pairs a hue with an icon and a word. The warm washes are tinted
+ * towards the sheet, not grey, so a pill sitting on the briefing surface reads as
+ * part of it rather than as pasted-in chrome.
+ */
+:host {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--huddle-space-1, 0.25rem);
+  padding: 0.0625rem var(--huddle-space-2, 0.5rem);
+  border-radius: var(--huddle-radius-pill, 999px);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.pill__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill__icon {
+  flex: 0 0 auto;
+  --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.pill_neutral {
+  background: var(--huddle-wash, #f3f3f3);
+  color: var(--huddle-ink-secondary, #57534e);
+}
+
+.pill_info {
+  background: var(--huddle-wash, #f3f3f3);
+  color: var(--huddle-ink-secondary, #57534e);
+}
+
+.pill_accent {
+  background: var(--huddle-accent-soft, #eef4ff);
+  color: var(--huddle-accent-strong, #014486);
+}
+
+.pill_success {
+  background: var(--huddle-ok-soft, #e7f6ec);
+  color: var(--huddle-ok, #15803d);
+}
+
+.pill_warning {
+  background: var(--huddle-warn-soft, #eef4ff);
+  color: var(--huddle-warn, #0176d3);
+}
+
+.pill_critical {
+  background: var(--huddle-urgent-soft, #fceceb);
+  color: var(--huddle-urgent, #9a1c1c);
+}
+
+@media (prefers-color-scheme: dark) {
+  .pill_neutral,
+  .pill_info {
+    background: #2b2724;
+    color: #d6d3d1;
+  }
+
+  .pill_accent,
+  .pill_warning {
+    background: #0b2a47;
+    color: #8fc9ff;
+  }
+
+  .pill_success {
+    background: #16301f;
+    color: #6ee7a0;
+  }
+
+  .pill_critical {
+    background: #3a1a19;
+    color: #fca5a5;
+  }
+}

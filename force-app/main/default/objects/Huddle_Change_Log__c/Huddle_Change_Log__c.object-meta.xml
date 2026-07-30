@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>Huddle_Change_Log_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <compactLayoutAssignment>Huddle_Change_Log_Highlights</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
     <description>The audit backbone. One record per action Huddle takes (strategy logged, Task created, open decision raised, decision resolved, digest generated), with a lookup back to the strategy log so every change traces to the meeting recap that produced it. Not optional: no Huddle write happens without a row here.</description>
     <enableActivities>false</enableActivities>

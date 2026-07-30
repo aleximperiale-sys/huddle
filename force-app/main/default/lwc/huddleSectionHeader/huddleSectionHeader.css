@@ -1,0 +1,102 @@
+/*
+ * The rule under the heading is the app's structural device. A hero section gets a
+ * thicker blue rule; ordinary sections get a hairline. That difference, plus type
+ * size, is what carries hierarchy - not a stack of card borders.
+ */
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--huddle-space-3, 0.75rem);
+  padding-bottom: var(--huddle-space-2, 0.5rem);
+  border-bottom: 1px solid var(--huddle-hairline-strong, #d6d3d1);
+}
+
+.head_hero {
+  border-bottom: 2px solid var(--huddle-accent, #0176d3);
+  padding-bottom: var(--huddle-space-3, 0.75rem);
+}
+
+.head__main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--huddle-space-2, 0.5rem);
+  min-width: 0;
+  flex: 1 1 16rem;
+}
+
+.head__toggle {
+  margin-top: 0.0625rem;
+  --slds-c-button-text-color: var(--huddle-ink-secondary, #57534e);
+  --slds-c-button-text-color-hover: var(--huddle-accent, #0176d3);
+}
+
+.head__icon {
+  margin-top: 0.1875rem;
+  --slds-c-icon-color-foreground-default: var(--huddle-accent, #0176d3);
+}
+
+.head__text {
+  min-width: 0;
+}
+
+.head__eyebrow {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--huddle-accent, #0176d3);
+  margin-bottom: 0.125rem;
+}
+
+.head__title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--huddle-space-2, 0.5rem);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--huddle-ink, #1c1917);
+  overflow-wrap: anywhere;
+}
+
+.head__title_hero {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.head__count {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted, #78716c);
+  white-space: nowrap;
+}
+
+.head__description {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--huddle-ink-secondary, #57534e);
+  max-width: 46rem;
+}
+
+.head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--huddle-space-2, 0.5rem);
+}
+
+/* On a phone the actions drop under the heading and stretch to a real touch size. */
+@media (max-width: 30rem) {
+  .head__actions {
+    width: 100%;
+  }
+}

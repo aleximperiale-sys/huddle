@@ -1,0 +1,58 @@
+<template>
+  <div class={containerClass}>
+    <div class="head__main">
+      <template lwc:if={collapsible}>
+        <lightning-button-icon
+          class="head__toggle"
+          icon-name={toggleIcon}
+          variant="bare"
+          size="small"
+          alternative-text={toggleTitle}
+          title={toggleTitle}
+          aria-expanded={isExpanded}
+          onclick={handleToggle}
+        ></lightning-button-icon>
+      </template>
+
+      <template lwc:if={iconName}>
+        <lightning-icon
+          class="head__icon"
+          icon-name={iconName}
+          size="x-small"
+          alternative-text=""
+        ></lightning-icon>
+      </template>
+
+      <div class="head__text">
+        <template lwc:if={eyebrow}>
+          <p class="head__eyebrow">{eyebrow}</p>
+        </template>
+
+        <template lwc:if={isLevelThree}>
+          <h3 class={headingClass}>
+            <span>{heading}</span>
+            <template lwc:if={countLabel}>
+              <span class="head__count">{countLabel}</span>
+            </template>
+          </h3>
+        </template>
+        <template lwc:else>
+          <h2 class={headingClass}>
+            <span>{heading}</span>
+            <template lwc:if={countLabel}>
+              <span class="head__count">{countLabel}</span>
+            </template>
+          </h2>
+        </template>
+
+        <template lwc:if={description}>
+          <p class="head__description">{description}</p>
+        </template>
+      </div>
+    </div>
+
+    <div class="head__actions">
+      <slot name="actions"></slot>
+    </div>
+  </div>
+</template>

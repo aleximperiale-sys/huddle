@@ -1,230 +1,412 @@
 <template>
-  <lightning-card title="Huddle Change Log" icon-name="custom:custom18">
-    <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
-      <span class="slds-text-body_small slds-text-color_weak slds-p-right_small"
-        >{rowCountLabel}</span
-      >
-      <lightning-button
-        variant="base"
-        label={tableLabel}
-        onclick={toggleTable}
-      ></lightning-button>
-    </div>
+  <div class="sheet">
+    <!-- ============================== masthead ============================= -->
+    <header class="sheet__head">
+      <div class="sheet__title">
+        <p class="sheet__eyebrow">Huddle audit trail</p>
+        <h1 class="sheet__h1">Every action, and who it landed on</h1>
+        <p class="sheet__sub">
+          One row per write Huddle made. Nothing on this page can be edited -
+          the change log is the record.
+        </p>
+      </div>
 
-    <!-- One filter row above everything it scopes. -->
-    <div class="filters">
-      <div
-        class="slds-grid slds-gutters_x-small slds-wrap slds-grid_vertical-align-end"
+      <div class="sheet__actions">
+        <c-huddle-status-badge
+          tone={activeFilterTone}
+          icon-name="utility:filterList"
+          label={activeFilterLabel}
+        ></c-huddle-status-badge>
+        <span class="sheet__count" aria-live="polite">{rowCountLabel}</span>
+        <div class="sheet__refresh">
+          <template lwc:if={isRefreshing}>
+            <div class="sheet__spinner">
+              <lightning-spinner
+                size="small"
+                variant="brand"
+                alternative-text="Refreshing data"
+              ></lightning-spinner>
+            </div>
+          </template>
+          <lightning-button
+            variant="brand"
+            icon-name="utility:refresh"
+            label={refreshLabel}
+            disabled={isRefreshing}
+            onclick={handleRefresh}
+          ></lightning-button>
+        </div>
+      </div>
+    </header>
+
+    <template lwc:if={isStaleWarning}>
+      <div class="sheet__alert">
+        <c-huddle-error-state
+          variant="inline"
+          message={errorMessage}
+          detail={errorDetail}
+          retry-label="Try again"
+          retrying={isRefreshing}
+          onretry={handleRetry}
+        ></c-huddle-error-state>
+      </div>
+    </template>
+
+    <!-- =============================== filters ============================= -->
+    <section class="region" aria-label="Filter the change log">
+      <c-huddle-section-header
+        heading="Scope"
+        description="Narrows what the server returns. The search box below filters what is already loaded."
+        icon-name="utility:filterList"
+        collapsible
+        collapsed={filtersCollapsed}
+        ontoggle={handleFiltersToggle}
       >
-        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+        <div slot="actions">
+          <lightning-button
+            variant="neutral"
+            label="Reset scope"
+            icon-name="utility:undo"
+            onclick={handleReset}
+          ></lightning-button>
+        </div>
+      </c-huddle-section-header>
+      <template lwc:if={showFilters}>
+        <div class="filters">
           <lightning-combobox
+            class="filters__field"
             label="Opportunity"
             value={opportunityFilter}
             options={opportunityOptions}
             onchange={handleOpportunity}
           ></lightning-combobox>
-        </div>
-        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-combobox
+            class="filters__field"
             label="Rep"
             value={repFilter}
             options={repOptions}
             onchange={handleRep}
           ></lightning-combobox>
-        </div>
-        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-combobox
+            class="filters__field"
             label="Change type"
             value={typeFilter}
             options={typeOptions}
             onchange={handleType}
           ></lightning-combobox>
-        </div>
-        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-input
+            class="filters__field"
             type="date"
             label="From"
             value={startDate}
             onchange={handleStart}
           ></lightning-input>
-        </div>
-        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
           <lightning-input
+            class="filters__field"
             type="date"
             label="To"
             value={endDate}
             onchange={handleEnd}
           ></lightning-input>
         </div>
-      </div>
-      <div class="slds-p-top_x-small">
-        <lightning-button
-          label="Reset filters"
-          onclick={handleReset}
-          variant="neutral"
-        ></lightning-button>
-      </div>
-    </div>
+      </template>
+    </section>
 
-    <template if:true={hasRows}>
+    <!-- ============================ summary strip ========================== -->
+    <template lwc:if={isInitialLoad}>
       <div class="strip">
-        <div class="strip__stat">
-          <span class="strip__value">{stats.total}</span>
-          <span class="strip__label">actions</span>
-        </div>
-        <div class="strip__stat">
-          <span class="strip__value">{stats.strategies}</span>
-          <span class="strip__label">strategies logged</span>
-        </div>
-        <div class="strip__stat">
-          <span class="strip__value">{stats.tasks}</span>
-          <span class="strip__label">tasks created</span>
-        </div>
-        <div class="strip__stat">
-          <span class="strip__value">{stats.decisions}</span>
-          <span class="strip__label">decisions raised</span>
-        </div>
-        <div class="strip__stat">
-          <span class="strip__value">{stats.assignees}</span>
-          <span class="strip__label">people assigned work</span>
-        </div>
+        <c-huddle-skeleton-loader
+          variant="stat"
+          label="Loading summary"
+        ></c-huddle-skeleton-loader>
+        <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
+        <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
+        <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
+        <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
       </div>
     </template>
-
-    <template if:true={isLoading}>
-      <lightning-spinner
-        alternative-text="Loading"
-        size="small"
-      ></lightning-spinner>
+    <template lwc:elseif={hasRows}>
+      <!-- dt before dd keeps the definition list valid; column-reverse puts the
+           figure on top where it belongs. -->
+      <dl class="strip">
+        <div class="strip__stat">
+          <dt class="strip__label">audited actions</dt>
+          <dd class="strip__value">{stats.total}</dd>
+        </div>
+        <div class="strip__stat">
+          <dt class="strip__label">strategies logged</dt>
+          <dd class="strip__value">{stats.strategies}</dd>
+        </div>
+        <div class="strip__stat">
+          <dt class="strip__label">tasks created</dt>
+          <dd class="strip__value">{stats.tasks}</dd>
+        </div>
+        <div class="strip__stat">
+          <dt class="strip__label">decisions raised</dt>
+          <dd class="strip__value">{stats.decisions}</dd>
+        </div>
+        <div class="strip__stat strip__stat_accent">
+          <dt class="strip__label">people given work</dt>
+          <dd class="strip__value">{stats.assignees}</dd>
+        </div>
+      </dl>
     </template>
 
-    <template if:true={error}>
-      <div class="slds-p-around_medium slds-text-color_error" role="alert">
-        {error}
-      </div>
-    </template>
+    <!-- ============================== the log ============================== -->
+    <section class="region" aria-label="Audited actions">
+      <c-huddle-section-header
+        eyebrow="The log"
+        heading="Audited actions"
+        description="Newest first by default. Every entry links back to the meeting recap that caused it."
+        count-label={pageLabel}
+        icon-name="custom:custom18"
+      >
+        <div slot="actions" class="log__controls">
+          <lightning-input
+            class="log__search"
+            type="search"
+            label="Search the loaded change log"
+            variant="label-hidden"
+            placeholder="Search record, detail, person…"
+            value={searchTerm}
+            onchange={handleSearch}
+          ></lightning-input>
+          <lightning-combobox
+            class="log__select"
+            label="Sort by"
+            variant="label-hidden"
+            value={sortKey}
+            options={sortOptions}
+            onchange={handleSort}
+          ></lightning-combobox>
+          <lightning-radio-group
+            class="log__view"
+            name="changeLogView"
+            label="View the log as"
+            variant="label-hidden"
+            type="button"
+            value={view}
+            options={viewOptions}
+            onchange={handleViewChange}
+          ></lightning-radio-group>
+        </div>
+      </c-huddle-section-header>
 
-    <template if:true={hasRows}>
-      <template if:false={showTable}>
-        <div class="timeline">
-          <template for:each={entries} for:item="e">
-            <div key={e.id} class="entry">
-              <div class="entry__marker">
-                <lightning-icon
-                  icon-name={e.icon}
-                  size="xx-small"
-                  alternative-text={e.changeType}
-                ></lightning-icon>
-              </div>
-              <div class="entry__body">
-                <div class="entry__head">
-                  <span class="entry__type">{e.changeType}</span>
-                  <span class="entry__record">{e.recordName}</span>
-                </div>
+      <!-- initial load: placeholders in the shape of the view they replace -->
+      <template lwc:if={isInitialLoad}>
+        <div class="panel">
+          <c-huddle-skeleton-loader
+            variant="agenda"
+            count="6"
+            label="Loading the change log"
+          ></c-huddle-skeleton-loader>
+        </div>
+      </template>
 
-                <template if:true={e.detail}>
-                  <div class="entry__detail">{e.detail}</div>
-                </template>
+      <template lwc:elseif={isFatalError}>
+        <c-huddle-error-state
+          message={errorMessage}
+          detail={errorDetail}
+          retry-label="Load the change log again"
+          retrying={isRefreshing}
+          onretry={handleRetry}
+        ></c-huddle-error-state>
+      </template>
 
-                <div class="entry__meta">
-                  <template if:true={e.hasAssignee}>
-                    <span class="chip">
+      <template lwc:elseif={isFilteredEmpty}>
+        <c-huddle-empty-state
+          icon-name="utility:search"
+          heading="No audited action matches this scope"
+          message="Widen the date range, clear the search box, or reset the scope to see everything Huddle has recorded."
+          action-label="Reset scope"
+          action-variant="neutral"
+          onaction={handleReset}
+        ></c-huddle-empty-state>
+      </template>
+
+      <template lwc:elseif={isGenuinelyEmpty}>
+        <c-huddle-empty-state
+          icon-name="custom:custom18"
+          heading="Huddle has not logged anything yet"
+          message="Every strategy session, task and decision the agent writes produces one row here. Ask the Huddle agent to log a meeting recap and this fills in immediately."
+          action-label="Open the change log records"
+          action-variant="neutral"
+          onaction={navigateToChangeLogList}
+        ></c-huddle-empty-state>
+      </template>
+
+      <template lwc:else>
+        <div class="panel">
+          <!-- ---------------------------- timeline ------------------------- -->
+          <template lwc:if={isTimeline}>
+            <ul class="timeline">
+              <template for:each={entries} for:item="e">
+                <li key={e.id} class="entry">
+                  <div class="entry__rail">
+                    <span class="entry__marker">
                       <lightning-icon
-                        icon-name="utility:user"
+                        icon-name={e.icon}
                         size="xx-small"
-                        alternative-text="Assigned to"
+                        alternative-text={e.changeType}
                       ></lightning-icon>
-                      {e.assignedToName}
                     </span>
-                  </template>
-                  <span class={e.confirmedClass}>
-                    <lightning-icon
-                      icon-name={e.confirmedIcon}
-                      size="xx-small"
-                      alternative-text={e.confirmedLabel}
-                    ></lightning-icon>
-                    {e.confirmedLabel}
-                  </span>
-                  <span>{e.when}</span>
-                  <span>entered by {e.repName}</span>
-                  <span>{e.name}</span>
-                </div>
+                  </div>
 
-                <div class="entry__links">
-                  <template if:true={e.hasStrategyLog}>
-                    <a
-                      class="entry__link"
-                      data-id={e.strategyLogId}
-                      onclick={openStrategyLog}
-                      >Source meeting recap</a
+                  <div class="entry__body">
+                    <div class="entry__head">
+                      <span class="entry__type">{e.changeType}</span>
+                      <span class="entry__record">{e.recordName}</span>
+                      <span class="entry__when">{e.when}</span>
+                    </div>
+
+                    <template lwc:if={e.detail}>
+                      <p class="entry__detail">{e.detail}</p>
+                    </template>
+
+                    <div class="entry__chips">
+                      <template lwc:if={e.hasAssignee}>
+                        <c-huddle-status-badge
+                          tone="accent"
+                          icon-name="utility:user"
+                          label={e.assignedToName}
+                          assistive-text="Assigned to"
+                        ></c-huddle-status-badge>
+                      </template>
+                      <c-huddle-status-badge
+                        tone={e.confirmedTone}
+                        icon-name={e.confirmedIcon}
+                        label={e.confirmedLabel}
+                      ></c-huddle-status-badge>
+                      <span class="entry__meta">entered by {e.repName}</span>
+                      <span class="entry__meta">{e.name}</span>
+                    </div>
+
+                    <div class="entry__links">
+                      <template lwc:if={e.hasStrategyLog}>
+                        <a
+                          href="#"
+                          class="entry__link"
+                          data-id={e.strategyLogId}
+                          onclick={openStrategyLog}
+                          >Source meeting recap</a
+                        >
+                      </template>
+                      <template lwc:if={e.hasRelatedRecord}>
+                        <a
+                          href="#"
+                          class="entry__link"
+                          data-id={e.relatedRecordId}
+                          onclick={openRelatedRecord}
+                          >Open the record</a
+                        >
+                      </template>
+                      <template lwc:if={e.hasOpportunity}>
+                        <a
+                          href="#"
+                          class="entry__link"
+                          data-id={e.opportunityId}
+                          onclick={openOpportunity}
+                          >{e.opportunityName}</a
+                        >
+                      </template>
+                    </div>
+                  </div>
+
+                  <div class="entry__actions">
+                    <lightning-button-menu
+                      alternative-text="Actions for this audited change"
+                      title="Actions for this audited change"
+                      icon-size="x-small"
+                      menu-alignment="auto"
+                      variant="bare"
+                      onselect={handleMenuSelect}
                     >
-                  </template>
-                  <template if:true={e.hasRelatedRecord}>
-                    <a
-                      class="entry__link"
-                      data-id={e.relatedRecordId}
-                      onclick={openRelatedRecord}
-                      >Open the record</a
-                    >
-                  </template>
-                  <template if:true={e.hasOpportunity}>
-                    <a
-                      class="entry__link"
-                      data-id={e.opportunityId}
-                      onclick={openOpportunity}
-                      >{e.opportunityName}</a
-                    >
-                  </template>
-                </div>
-              </div>
+                      <template for:each={e.menuItems} for:item="m">
+                        <lightning-menu-item
+                          key={m.value}
+                          value={m.value}
+                          label={m.label}
+                        ></lightning-menu-item>
+                      </template>
+                    </lightning-button-menu>
+                  </div>
+                </li>
+              </template>
+            </ul>
+          </template>
+
+          <!-- ----------------------------- table -------------------------- -->
+          <template lwc:else>
+            <div class="table-wrap">
+              <lightning-datatable
+                key-field="id"
+                data={tableRows}
+                columns={columns}
+                sorted-by={sortedBy}
+                sorted-direction={sortedDirection}
+                onsort={handleColumnSort}
+                onrowaction={handleRowAction}
+                hide-checkbox-column
+                column-widths-mode="auto"
+                default-sort-direction="desc"
+              ></lightning-datatable>
             </div>
           </template>
-        </div>
-      </template>
 
-      <!-- Table view: the same audit rows, scannable in columns. -->
-      <template if:true={showTable}>
-        <div class="table-scroll slds-p-horizontal_small slds-p-bottom_medium">
-          <table class="table-view">
-            <thead>
-              <tr>
-                <th scope="col">Change #</th>
-                <th scope="col">Type</th>
-                <th scope="col">Record</th>
-                <th scope="col">Assigned to</th>
-                <th scope="col">Opportunity</th>
-                <th scope="col">Confirmed</th>
-                <th scope="col">Entered by</th>
-                <th scope="col">When</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template for:each={entries} for:item="e">
-                <tr key={e.id}>
-                  <td>{e.name}</td>
-                  <td>{e.changeType}</td>
-                  <td>{e.recordName}</td>
-                  <td>{e.assignedToName}</td>
-                  <td>{e.opportunityName}</td>
-                  <td>{e.confirmedLabel}</td>
-                  <td>{e.repName}</td>
-                  <td>{e.when}</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </template>
-    </template>
+          <!-- --------------------- pagination + load more ----------------- -->
+          <div class="pager">
+            <lightning-combobox
+              class="pager__size"
+              label="Rows per page"
+              variant="label-hidden"
+              value={pageSizeValue}
+              options={pageSizeOptions}
+              onchange={handlePageSize}
+            ></lightning-combobox>
 
-    <template if:false={hasRows}>
-      <template if:false={isLoading}>
-        <div
-          class="slds-p-around_large slds-align_absolute-center slds-text-color_weak"
-        >
-          Nothing matches these filters yet.
+            <template lwc:if={showPagination}>
+              <div class="pager__nav">
+                <lightning-button
+                  variant="neutral"
+                  label="Previous"
+                  icon-name="utility:chevronleft"
+                  disabled={isFirstPage}
+                  onclick={handlePrev}
+                ></lightning-button>
+                <span class="pager__label" aria-live="polite">{pageLabel}</span>
+                <lightning-button
+                  variant="neutral"
+                  label="Next"
+                  icon-name="utility:chevronright"
+                  icon-position="right"
+                  disabled={isLastPage}
+                  onclick={handleNext}
+                ></lightning-button>
+              </div>
+            </template>
+
+            <template lwc:if={canLoadMore}>
+              <div class="pager__more">
+                <template lwc:if={isLoadingMore}>
+                  <div class="sheet__spinner">
+                    <lightning-spinner
+                      size="small"
+                      variant="brand"
+                      alternative-text="Loading records"
+                    ></lightning-spinner>
+                  </div>
+                </template>
+                <lightning-button
+                  variant="neutral"
+                  label={loadMoreLabel}
+                  disabled={isLoadingMore}
+                  onclick={handleLoadMore}
+                ></lightning-button>
+              </div>
+            </template>
+          </div>
         </div>
       </template>
-    </template>
-  </lightning-card>
+    </section>
+  </div>
 </template>

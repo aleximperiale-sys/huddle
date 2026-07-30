@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Opportunity__c</columns>
+    <columns>Meeting_Date__c</columns>
+    <columns>Strategy_Summary__c</columns>
+    <columns>Attendees__c</columns>
+    <columns>Logged_By__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <label>All Strategy Logs</label>
+</ListView>

@@ -1,129 +1,243 @@
 /*
- * A compact strip on the Opportunity record page. It sits next to customer-facing
- * activity, so the internal-only status is stated in words, not implied by styling.
+ * The record-page briefing card. Same blue identity as the two app tabs, wrapped in
+ * lightning-card so it sits correctly among the standard Opportunity components.
+ *
+ * The card lives beside customer-facing activity history, so "internal only" is a
+ * pill AND a sentence - that status is too consequential to leave to a colour.
  */
 :host {
   display: block;
 
-  --huddle-accent: #2a78d6;
-  --huddle-track: #cde2fb;
-  --huddle-warning: #fab219;
+  --huddle-accent: #0176d3;
+  --huddle-accent-strong: #014486;
+  --huddle-accent-soft: #eef4ff;
+  --huddle-accent-track: #cfe4fb;
+
+  --huddle-urgent: #9a1c1c;
+  --huddle-urgent-soft: #fceceb;
+  --huddle-warn: #0176d3;
+  --huddle-warn-soft: #eef4ff;
+  --huddle-ok: #15803d;
+  --huddle-ok-soft: #e7f6ec;
 
   --huddle-surface: #ffffff;
-  --huddle-ink: #181818;
-  --huddle-ink-secondary: #54698d;
-  --huddle-ink-muted: #747474;
-  --huddle-hairline: #e5e5e5;
+  --huddle-sheet: #ffffff;
   --huddle-wash: #f3f3f3;
+  --huddle-ink: #1c1917;
+  --huddle-ink-secondary: #57534e;
+  --huddle-ink-muted: #78716c;
+  --huddle-hairline: #e7e5e4;
+  --huddle-hairline-strong: #d6d3d1;
+
+  --huddle-space-1: var(--slds-g-spacing-1, 0.25rem);
+  --huddle-space-2: var(--slds-g-spacing-2, 0.5rem);
+  --huddle-space-3: var(--slds-g-spacing-3, 0.75rem);
+  --huddle-space-4: var(--slds-g-spacing-4, 1rem);
+  --huddle-space-5: var(--slds-g-spacing-5, 1.5rem);
+
+  --huddle-radius-1: var(--slds-g-radius-border-1, 0.125rem);
+  --huddle-radius-2: var(--slds-g-radius-border-2, 0.25rem);
+  --huddle-radius-pill: 999px;
+
+  --huddle-motion: 180ms;
+  --huddle-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  /* The card's own header icon picks up the app accent. */
+  --slds-c-card-color-border: var(--huddle-hairline);
 }
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --huddle-accent: #3987e5;
-    --huddle-track: #184f95;
-    --huddle-surface: #1b1b1b;
-    --huddle-ink: #ffffff;
-    --huddle-ink-secondary: #c9c9c9;
-    --huddle-ink-muted: #a0a0a0;
-    --huddle-hairline: #3a3a3a;
-    --huddle-wash: #262626;
+    --huddle-accent: #57a9f5;
+    --huddle-accent-strong: #8fc9ff;
+    --huddle-accent-soft: #0b2a47;
+    --huddle-accent-track: #14416b;
+
+    --huddle-urgent: #f08b84;
+    --huddle-urgent-soft: #3a1a19;
+    --huddle-warn: #57a9f5;
+    --huddle-warn-soft: #0b2a47;
+    --huddle-ok: #6ee7a0;
+    --huddle-ok-soft: #16301f;
+
+    --huddle-surface: #1c1917;
+    --huddle-sheet: #1c1917;
+    --huddle-wash: #2b2724;
+    --huddle-ink: #fafaf9;
+    --huddle-ink-secondary: #d6d3d1;
+    --huddle-ink-muted: #a8a29e;
+    --huddle-hairline: #3a3532;
+    --huddle-hairline-strong: #514a46;
   }
 }
 
-.badge {
-  border: 1px solid var(--huddle-hairline);
-  border-radius: 0.25rem;
-  padding: 0.75rem;
-}
-
-.badge__head {
+.card__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: var(--huddle-space-2);
 }
 
-.badge__title {
+.card__spinner {
+  position: relative;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.body {
+  padding: 0 var(--huddle-space-4) var(--huddle-space-4);
+}
+
+.internal-note {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--huddle-ink-muted);
+  padding-bottom: var(--huddle-space-3);
+  border-bottom: 1px solid var(--huddle-hairline);
+}
+
+.body__alert {
+  margin-top: var(--huddle-space-3);
+}
+
+/* ============================ the loudest figure ========================== */
+
+.headline {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.813rem;
+  gap: var(--huddle-space-3);
+  margin-top: var(--huddle-space-3);
+  padding: var(--huddle-space-3);
+  border-radius: var(--huddle-radius-2);
+  border-inline-start: 3px solid var(--huddle-hairline-strong);
+  background: var(--huddle-wash);
+  animation: fade-in var(--huddle-motion) var(--huddle-ease) both;
+}
+
+.headline_loading {
+  min-height: 4.25rem;
+  align-items: stretch;
+}
+
+.headline_open {
+  border-inline-start-color: var(--huddle-urgent);
+  background: var(--huddle-urgent-soft);
+}
+
+.headline_clear {
+  border-inline-start-color: var(--huddle-ok);
+  background: var(--huddle-ok-soft);
+}
+
+.headline__figure {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
   color: var(--huddle-ink);
 }
 
-/* Said in words: this component sits beside customer-facing activity. */
-.badge__internal {
-  font-size: 0.688rem;
-  color: var(--huddle-ink-muted);
-  margin-top: 0.125rem;
+.headline__text {
+  display: grid;
+  gap: var(--huddle-space-1);
+  justify-items: start;
+  min-width: 0;
 }
 
+.headline__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--huddle-ink);
+}
+
+/* ============================ supporting stats ============================ */
+
 .stats {
-  display: flex;
-  gap: 1.25rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: var(--huddle-space-3);
+  margin-top: var(--huddle-space-3);
 }
 
 .stat {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column-reverse; /* figure over label */
+  min-width: 0;
+}
+
+.stat_wide {
+  grid-column: 1 / -1;
 }
 
 .stat__figure {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--huddle-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink);
+}
+
+.stat__meta {
+  font-size: 0.8125rem;
+  color: var(--huddle-ink);
 }
 
 .stat__label {
-  font-size: 0.688rem;
-  color: var(--huddle-ink-secondary);
-  line-height: 1.2;
+  font-size: 0.6875rem;
+  color: var(--huddle-ink-muted);
 }
 
-.ring__track {
-  stroke: var(--huddle-track);
+/* ================================= meter ================================== */
+
+.meter {
+  display: grid;
+  gap: 0.1875rem;
+  margin-top: var(--huddle-space-3);
+  --slds-c-progressbar-color-background-fill: var(--huddle-accent);
+  --sds-c-progress-bar-color-background-fill: var(--huddle-accent);
 }
 
-.ring__fill {
-  stroke: var(--huddle-accent);
+.meter__label {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted);
 }
 
-.ring__value {
-  font-size: 0.75rem;
-  font-weight: 600;
-  fill: var(--huddle-ink);
-}
+/* ================================ actions ================================= */
 
-.alert {
+.body__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
-  margin-top: 0.625rem;
-  padding: 0.375rem 0.5rem;
-  border-radius: 0.25rem;
-  background: var(--huddle-wash);
-  font-size: 0.75rem;
-  color: #8a5a00; /* the warning step is sub-3:1 on white; text uses an ink-safe step */
+  gap: var(--huddle-space-2);
+  margin-top: var(--huddle-space-3);
 }
 
-@media (prefers-color-scheme: dark) {
-  .alert {
-    color: var(--huddle-warning);
-  }
-}
+/* ================================ history ================================= */
 
 .history {
-  margin-top: 0.625rem;
+  margin-top: var(--huddle-space-3);
+  padding-top: var(--huddle-space-3);
   border-top: 1px solid var(--huddle-hairline);
-  padding-top: 0.5rem;
+  animation: expand-in 200ms var(--huddle-ease) both;
+}
+
+.history__heading {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--huddle-ink-muted);
+  margin-bottom: var(--huddle-space-1);
 }
 
 .history__item {
-  padding: 0.375rem 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--huddle-space-2);
+  padding: var(--huddle-space-2) 0;
   border-bottom: 1px solid var(--huddle-hairline);
 }
 
@@ -131,32 +245,98 @@
   border-bottom: none;
 }
 
+.history__main {
+  min-width: 0;
+}
+
 .history__title {
   font-size: 0.75rem;
-  color: var(--huddle-ink);
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
+.history__type {
+  font-weight: 700;
+  color: var(--huddle-ink);
+}
+
+.history__record {
+  color: var(--huddle-ink-secondary);
+}
+
 .history__meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.688rem;
+  font-size: 0.6875rem;
   color: var(--huddle-ink-muted);
 }
 
 .history__link {
+  font-size: 0.6875rem;
   color: var(--huddle-accent);
-  cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--huddle-motion) var(--huddle-ease);
 }
 
-.history__link:hover {
-  text-decoration: underline;
+.history__link:hover,
+.history__link:focus-visible {
+  color: var(--huddle-accent-strong);
+  border-bottom-color: currentColor;
 }
 
-.empty {
-  font-size: 0.75rem;
+.history__more {
+  margin-top: var(--huddle-space-2);
+  font-size: 0.6875rem;
   color: var(--huddle-ink-muted);
+}
+
+.history__footer {
+  margin-top: var(--huddle-space-3);
+}
+
+/* ================================= motion ================================= */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .headline,
+  .history,
+  .history__link {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ================================ responsive ============================== */
+
+/* The record page's right rail can be very narrow; the headline stacks rather than
+   squeezing a 2.25rem figure and a sentence onto one line. */
+@media (max-width: 24rem) {
+  .headline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--huddle-space-2);
+  }
+
+  .body__actions > * {
+    width: 100%;
+  }
 }

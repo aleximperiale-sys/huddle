@@ -6,7 +6,7 @@
     <uiType>Lightning</uiType>
     <formFactors>Large</formFactors>
     <brand>
-        <headerColor>#0B5CAB</headerColor>
+        <headerColor>#032D60</headerColor>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
     </brand>
     <tabs>Huddle_Home</tabs>

@@ -1,0 +1,75 @@
+/*
+ * Centred, low-chrome, and deliberately not boxed: the empty state sits inside a
+ * region that already has a border, and a second border around nothing reads as a
+ * broken component rather than an empty one.
+ */
+:host {
+  display: block;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--huddle-space-2, 0.5rem);
+  padding: var(--huddle-space-6, 2rem) var(--huddle-space-4, 1rem);
+  text-align: center;
+  animation: empty-in var(--huddle-motion, 180ms) var(--huddle-ease, ease-out)
+    both;
+}
+
+.empty_compact {
+  padding: var(--huddle-space-4, 1rem);
+  gap: var(--huddle-space-1, 0.25rem);
+}
+
+.empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--huddle-wash, #f3f3f3);
+  --slds-c-icon-color-foreground-default: var(--huddle-ink-muted, #78716c);
+}
+
+.empty__heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--huddle-ink, #1c1917);
+  max-width: 34rem;
+}
+
+.empty__message {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--huddle-ink-muted, #78716c);
+  max-width: 34rem;
+}
+
+.empty__action {
+  margin-top: var(--huddle-space-1, 0.25rem);
+}
+
+@keyframes empty-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty {
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .empty__icon {
+    background: #2b2724;
+  }
+}

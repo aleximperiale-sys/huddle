@@ -1,0 +1,211 @@
+/*
+ * Warm-neutral placeholders. The shimmer is a single low-contrast sweep, not a
+ * pulse: a pulsing block competes with the real content that lands next to it.
+ * Colours come from the host's token set when one is provided, and fall back to
+ * the same neutral greys so the component is usable standalone.
+ */
+:host {
+  display: block;
+}
+
+.sk {
+  display: grid;
+  gap: var(--huddle-space-2, 0.5rem);
+}
+
+.sk__block {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--huddle-radius-2, 0.25rem);
+  background: var(--huddle-wash, #f3f3f3);
+}
+
+.sk__block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--huddle-surface, #ffffff),
+    transparent
+  );
+  opacity: 0.65;
+  animation: sk-sweep 1400ms infinite;
+}
+
+@keyframes sk-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ---- shapes ---- */
+
+.sk__block_icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--huddle-radius-2, 0.25rem);
+}
+
+.sk__block_dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+
+.sk__block_pill {
+  width: 3.5rem;
+  height: 1rem;
+  border-radius: var(--huddle-radius-pill, 999px);
+}
+
+.sk__block_agepill {
+  width: 4.5rem;
+  height: 1.25rem;
+  border-radius: var(--huddle-radius-pill, 999px);
+}
+
+.sk__block_figure {
+  width: 4rem;
+  height: 1.875rem;
+}
+
+.sk__block_label {
+  width: 78%;
+  height: 0.75rem;
+}
+
+.sk__block_meter {
+  width: 100%;
+  height: 0.5rem;
+  border-radius: var(--huddle-radius-pill, 999px);
+}
+
+.sk__block_line {
+  height: 0.875rem;
+}
+
+.sk__block_meta {
+  height: 0.688rem;
+}
+
+.sk__block_cell {
+  height: 0.813rem;
+}
+
+.sk__block_cell-short {
+  width: 3rem;
+}
+
+.sk__block_chart {
+  width: 100%;
+  height: 100%;
+  min-height: 10rem;
+}
+
+.sk__block_statvalue {
+  width: 2.5rem;
+  height: 1.25rem;
+}
+
+.sk__block_statlabel {
+  width: 4.5rem;
+  height: 0.688rem;
+}
+
+.sk__block_barlabel {
+  height: 0.75rem;
+}
+
+.sk__block_bartrack {
+  height: 0.75rem;
+  border-radius: var(--huddle-radius-1, 0.125rem);
+}
+
+.sk__block_barfill {
+  height: 100%;
+  background: var(--huddle-hairline-strong, #d6d3d1);
+}
+
+.sk__block_barvalue {
+  width: 1.5rem;
+  height: 0.75rem;
+}
+
+/* ---- layouts, matched to the real content's boxes ---- */
+
+.sk-kpi {
+  display: grid;
+  gap: var(--huddle-space-2, 0.5rem);
+  padding: var(--huddle-space-4, 1rem);
+  min-height: 7.5rem;
+  align-content: start;
+}
+
+.sk-kpi__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--huddle-space-2, 0.5rem);
+}
+
+.sk-agenda {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--huddle-space-3, 0.75rem);
+  padding: var(--huddle-space-3, 0.75rem) 0;
+  border-bottom: 1px solid var(--huddle-hairline, #e7e5e4);
+  min-height: 3.75rem;
+}
+
+.sk-agenda:last-child {
+  border-bottom: none;
+}
+
+.sk-agenda__rail {
+  display: flex;
+  justify-content: center;
+  width: 1.25rem;
+}
+
+.sk-agenda__body {
+  display: grid;
+  gap: var(--huddle-space-1, 0.25rem);
+  min-width: 0;
+}
+
+.sk-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--huddle-space-3, 0.75rem);
+  align-items: center;
+  padding: var(--huddle-space-2, 0.5rem) 0;
+  border-bottom: 1px solid var(--huddle-hairline, #e7e5e4);
+  min-height: 2.5rem;
+}
+
+.sk-row:last-child {
+  border-bottom: none;
+}
+
+.sk-bar {
+  display: grid;
+  grid-template-columns: minmax(6rem, 34%) 1fr 2ch;
+  align-items: center;
+  gap: var(--huddle-space-3, 0.75rem);
+}
+
+.sk-stat {
+  display: grid;
+  gap: var(--huddle-space-1, 0.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk__block::after {
+    animation: none;
+    opacity: 0;
+  }
+}

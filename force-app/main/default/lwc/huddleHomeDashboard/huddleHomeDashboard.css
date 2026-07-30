@@ -1,153 +1,394 @@
 /*
- * Huddle's visual language. Colors are assigned by the job they do, not by taste:
- * one accent hue carries every magnitude mark (rings, bars, the trend area), and
- * the status ramp is reserved for state and never reused as a series color.
+ * HUDDLE - the pre-meeting briefing sheet.
  *
- * The accent clears 3:1 on both surfaces (#2a78d6 on white, #3987e5 on the dark
- * card). The status steps are deliberately not all 3:1 on light — warning sits at
- * 1.83 — so every status mark ships with an icon and a text label and never
- * carries meaning by color alone.
+ * Identity: Salesforce blue on white, printed-agenda structure. Regions are
+ * separated by rules and headings; the only boxed elements are the KPI cards, so a
+ * border on this page means "this is a measure". The accent is SLDS blue - the
+ * accent is #0176d3 (4.9:1 on white), and every urgency mark pairs its hue with a
+ * pill, an icon and a written word so nothing is carried by colour alone.
+ *
+ * Tokens are declared here and inherit into the child components through the shadow
+ * boundary, which is why the shared LWCs read var(--huddle-*) with a matching
+ * fallback rather than hard-coding their own palette.
  */
 :host {
   display: block;
 
-  /* accent ramp — the only hue that encodes magnitude */
-  --huddle-accent: #2a78d6;
-  --huddle-track: #cde2fb; /* meter track: a lighter step of the same ramp */
+  /* --- Salesforce blue accent: the one hue that carries magnitude and brand --- */
+  --huddle-accent: #0176d3; /* SLDS brand blue, 4.6:1 on white */
+  --huddle-accent-strong: #014486; /* deep blue - headings, hover */
+  --huddle-accent-soft: #eef4ff; /* washes on the white sheet */
+  --huddle-accent-track: #cfe4fb; /* meter tracks */
 
-  /* status — reserved for state, always paired with icon + label */
-  --huddle-good: #0ca30c;
-  --huddle-warning: #fab219;
-  --huddle-critical: #d03b3b;
+  /* --- urgency ramp: aging is the loudest signal on the page --- */
+  --huddle-urgent: #9a1c1c; /* 7.0:1 */
+  --huddle-urgent-soft: #fceceb;
+  --huddle-warn: #0176d3;
+  --huddle-warn-soft: #eef4ff;
+  --huddle-ok: #15803d; /* 4.6:1 */
+  --huddle-ok-soft: #e7f6ec;
 
-  /* chrome & ink */
+  /* --- neutral surfaces: white page, grey washes --- */
   --huddle-surface: #ffffff;
-  --huddle-ink: #181818;
-  --huddle-ink-secondary: #54698d;
-  --huddle-ink-muted: #747474;
-  --huddle-hairline: #e5e5e5;
+  --huddle-sheet: #ffffff;
+  --huddle-wash: #f3f3f3;
+  --huddle-ink: #1c1917;
+  --huddle-ink-secondary: #57534e; /* 7.3:1 */
+  --huddle-ink-muted: #78716c; /* 4.7:1 */
+  --huddle-hairline: #e7e5e4;
+  --huddle-hairline-strong: #d6d3d1;
+
+  /* --- spacing: SLDS scale first, literal fallback for orgs without SLDS 2 --- */
+  --huddle-space-1: var(--slds-g-spacing-1, 0.25rem);
+  --huddle-space-2: var(--slds-g-spacing-2, 0.5rem);
+  --huddle-space-3: var(--slds-g-spacing-3, 0.75rem);
+  --huddle-space-4: var(--slds-g-spacing-4, 1rem);
+  --huddle-space-5: var(--slds-g-spacing-5, 1.5rem);
+  --huddle-space-6: var(--slds-g-spacing-6, 2rem);
+
+  --huddle-radius-1: var(--slds-g-radius-border-1, 0.125rem);
+  --huddle-radius-2: var(--slds-g-radius-border-2, 0.25rem);
+  --huddle-radius-pill: 999px;
+
+  --huddle-motion: 180ms;
+  --huddle-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --huddle-accent: #3987e5;
-    --huddle-track: #184f95;
-    --huddle-surface: #1b1b1b;
-    --huddle-ink: #ffffff;
-    --huddle-ink-secondary: #c9c9c9;
-    --huddle-ink-muted: #a0a0a0;
-    --huddle-hairline: #3a3a3a;
+    --huddle-accent: #57a9f5;
+    --huddle-accent-strong: #8fc9ff;
+    --huddle-accent-soft: #0b2a47;
+    --huddle-accent-track: #14416b;
+
+    --huddle-urgent: #f08b84;
+    --huddle-urgent-soft: #3a1a19;
+    --huddle-warn: #57a9f5;
+    --huddle-warn-soft: #0b2a47;
+    --huddle-ok: #6ee7a0;
+    --huddle-ok-soft: #16301f;
+
+    --huddle-surface: #1c1917;
+    --huddle-sheet: #1c1917;
+    --huddle-wash: #2b2724;
+    --huddle-ink: #fafaf9;
+    --huddle-ink-secondary: #d6d3d1;
+    --huddle-ink-muted: #a8a29e;
+    --huddle-hairline: #3a3532;
+    --huddle-hairline-strong: #514a46;
   }
 }
 
-/* ---- KPI tiles ---- */
-
-.tile {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+.sheet {
+  background: var(--huddle-sheet);
+  padding: var(--huddle-space-4) var(--huddle-space-4) var(--huddle-space-6);
 }
 
-.tile__figure {
-  /* Proportional figures: tabular-nums makes a number like 121 look loose at
-     display sizes. Tabular is reserved for the table view's columns. */
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.1;
+/* ============================= sheet masthead ============================= */
+
+.sheet__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--huddle-space-3);
+  padding-bottom: var(--huddle-space-3);
+  border-bottom: 3px solid var(--huddle-accent);
+}
+
+.sheet__eyebrow {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--huddle-accent);
+}
+
+.sheet__h1 {
+  margin-top: 0.125rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   color: var(--huddle-ink);
 }
 
-.tile__label {
-  font-size: 0.75rem;
-  color: var(--huddle-ink-secondary);
-  line-height: 1.3;
-}
-
-.tile__sub {
+.sheet__date {
+  margin-top: 0.125rem;
   font-size: 0.75rem;
   color: var(--huddle-ink-muted);
 }
 
-/* ---- radial meter ---- */
-
-.ring {
-  flex: 0 0 auto;
-}
-
-.ring__track {
-  stroke: var(--huddle-track);
-}
-
-.ring__fill {
-  stroke: var(--huddle-accent);
-  transition: stroke-dasharray 0.5s ease;
-}
-
-.ring__value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  fill: var(--huddle-ink);
-}
-
-/* ---- horizontal data bars ---- */
-
-.bars {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.25rem 1rem 1rem;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: minmax(6rem, 34%) 1fr auto;
+.sheet__actions {
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--huddle-space-3);
 }
 
-.bar-row__label {
-  font-size: 0.75rem;
+.sheet__asof {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted);
+  white-space: nowrap;
+}
+
+/* The spinner needs a positioned box of its own: SLDS spinners are absolute. */
+.sheet__refresh {
+  display: flex;
+  align-items: center;
+  gap: var(--huddle-space-2);
+}
+
+.sheet__spinner {
+  position: relative;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sheet__alert {
+  margin-top: var(--huddle-space-3);
+}
+
+/* ================================ regions ================================= */
+
+.region {
+  margin-top: var(--huddle-space-5);
+}
+
+.region_hero {
+  margin-top: var(--huddle-space-4);
+}
+
+.panel {
+  padding-top: var(--huddle-space-3);
+  animation: region-in var(--huddle-motion) var(--huddle-ease) both;
+}
+
+/* ============================ the agenda (hero) =========================== */
+
+.agenda__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--huddle-space-2);
+}
+
+.agenda__search {
+  min-width: 13rem;
+  flex: 1 1 13rem;
+}
+
+.agenda__select {
+  min-width: 11rem;
+  flex: 0 1 11rem;
+}
+
+.agenda {
+  padding-top: var(--huddle-space-2);
+}
+
+.agenda__list {
+  display: block;
+}
+
+/* Rules, not cards: the agenda is a printed list, and a border per row would turn
+   ten open questions into ten competing boxes. */
+.agenda__item {
+  border-bottom: 1px solid var(--huddle-hairline);
+  animation: region-in var(--huddle-motion) var(--huddle-ease) both;
+}
+
+.agenda__item:last-child {
+  border-bottom: none;
+}
+
+.agenda__row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) minmax(9rem, auto);
+  align-items: start;
+  gap: var(--huddle-space-3);
+  padding: var(--huddle-space-3) var(--huddle-space-1);
+  transition: background-color var(--huddle-motion) var(--huddle-ease);
+}
+
+.agenda__row:hover {
+  background: var(--huddle-wash);
+}
+
+/* The one place the row itself is tinted: a decision past a fortnight. The tint is
+   never the only marker - the pill, the age colour and the word all say it too. */
+.agenda__row_critical {
+  box-shadow: inset 3px 0 0 var(--huddle-urgent);
+}
+
+.agenda__toggle {
+  margin-top: 0.0625rem;
+  --slds-c-button-text-color: var(--huddle-ink-muted);
+  --slds-c-button-text-color-hover: var(--huddle-accent);
+}
+
+.agenda__body {
+  min-width: 0;
+}
+
+.agenda__question {
+  display: inline-block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--huddle-ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.agenda__question:hover,
+.agenda__question:focus-visible {
+  color: var(--huddle-accent-strong);
+  text-decoration: underline;
+}
+
+.agenda__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin-top: 0.1875rem;
+  font-size: 0.6875rem;
+  color: var(--huddle-ink-muted);
+}
+
+.agenda__deal {
+  font-weight: 600;
   color: var(--huddle-ink-secondary);
   overflow-wrap: anywhere;
 }
 
-.bar-row__track {
-  height: 0.75rem; /* thin marks; never fill the band */
-  background: var(--huddle-hairline);
-  border-radius: 0.125rem;
-  overflow: hidden;
+.agenda__sep {
+  color: var(--huddle-hairline-strong);
 }
 
-.bar-row__fill {
-  height: 100%;
-  background: var(--huddle-accent);
-  /* 4px rounded data-end, square at the baseline */
-  border-radius: 0 0.25rem 0.25rem 0;
-  min-width: 2px;
-  transition: width 0.4s ease;
-}
+/* --- urgency block: the loudest thing in the region --- */
 
-.bar-row__value {
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--huddle-ink);
-  min-width: 2ch;
+.agenda__urgency {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
   text-align: right;
 }
 
-/* ---- trend area ---- */
+.agenda__age {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  color: var(--huddle-warn);
+}
+
+.agenda__age_critical {
+  color: var(--huddle-urgent);
+}
+
+.agenda__age-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.agenda__age-unit {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--huddle-ink-muted);
+  white-space: nowrap;
+}
+
+.agenda__agebar {
+  width: 100%;
+  min-width: 6rem;
+  height: 0.25rem;
+  border-radius: var(--huddle-radius-pill);
+  background: var(--huddle-hairline);
+  overflow: hidden;
+}
+
+.agenda__agebar-fill {
+  height: 100%;
+  border-radius: var(--huddle-radius-pill);
+  background: var(--huddle-warn);
+  transition: width 240ms var(--huddle-ease);
+}
+
+.agenda__agebar-fill_critical {
+  background: var(--huddle-urgent);
+}
+
+/* --- expanded detail --- */
+
+.agenda__detail {
+  padding: 0 var(--huddle-space-1) var(--huddle-space-4) 2.5rem;
+  animation: detail-in 200ms var(--huddle-ease) both;
+}
+
+.agenda__dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--huddle-space-3);
+  padding: var(--huddle-space-3);
+  border-radius: var(--huddle-radius-2);
+  background: var(--huddle-wash);
+}
+
+.agenda__dl-pair dt {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--huddle-ink-muted);
+  margin-bottom: 0.1875rem;
+}
+
+.agenda__dl-pair dd {
+  font-size: 0.8125rem;
+  color: var(--huddle-ink);
+  overflow-wrap: anywhere;
+}
+
+.agenda__none {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-muted);
+}
+
+.agenda__detail-actions {
+  margin-top: var(--huddle-space-3);
+}
+
+/* ============================== KPI card grid ============================= */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+  gap: var(--huddle-space-3);
+  margin-top: var(--huddle-space-3);
+}
+
+/* ============================== activity plot ============================= */
+
+.plot-wrap {
+  position: relative;
+  min-height: 11rem;
+}
 
 .trend {
   display: block;
   width: 100%;
-  /* Height follows the viewBox aspect. Pinning a height instead would letterbox
-     the plot into a centred strip on any card wider than the viewBox ratio. */
+  /* Height follows the viewBox aspect. Pinning one would letterbox the plot into a
+     centred strip on any region wider than the viewBox ratio. */
   height: auto;
 }
 
 .trend__area {
   fill: var(--huddle-accent);
-  opacity: 0.1; /* a wash, never a saturated block */
+  opacity: 0.12; /* a wash, never a saturated block */
 }
 
 .trend__line {
@@ -160,13 +401,12 @@
 
 .trend__grid {
   stroke: var(--huddle-hairline);
-  stroke-width: 1; /* hairline, solid — never dashed */
+  stroke-width: 1; /* hairline, solid - never dashed */
 }
 
 .trend__dot {
   fill: var(--huddle-accent);
-  /* 2px surface ring keeps the end marker legible where it crosses the line */
-  stroke: var(--huddle-surface);
+  stroke: var(--huddle-sheet);
   stroke-width: 2;
 }
 
@@ -176,8 +416,8 @@
 }
 
 .trend__endlabel {
-  font-size: 0.688rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   fill: var(--huddle-ink);
 }
 
@@ -186,66 +426,85 @@
   cursor: pointer;
 }
 
-.trend__cursor {
-  stroke: var(--huddle-ink-muted);
-  stroke-width: 1;
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--huddle-ink);
+  color: var(--huddle-sheet);
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--huddle-radius-2);
+  white-space: nowrap;
+  transform: translate(-50%, -140%);
+  z-index: 2;
 }
 
-/* ---- aging decisions ---- */
+/* ============================== split columns ============================= */
 
-.aging-item {
+.split {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.5rem;
-  align-items: start;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--huddle-hairline);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: var(--huddle-space-5);
+  margin-top: var(--huddle-space-5);
 }
 
-.aging-item:last-child {
-  border-bottom: none;
+.split__col {
+  min-width: 0;
 }
 
-.aging-item__question {
-  font-size: 0.813rem;
-  color: var(--huddle-ink);
-  text-decoration: none;
+/* ============================ horizontal bars ============================= */
+
+.bars {
+  display: grid;
+  gap: var(--huddle-space-2);
+  padding-top: var(--huddle-space-3);
+  min-height: 6rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 38%) 1fr auto;
+  align-items: center;
+  gap: var(--huddle-space-3);
+}
+
+.bar-row__label {
+  font-size: 0.75rem;
+  color: var(--huddle-ink-secondary);
   overflow-wrap: anywhere;
 }
 
-.aging-item__question:hover {
-  text-decoration: underline;
+.bar-row__track {
+  height: 0.625rem; /* thin marks; never fill the band */
+  background: var(--huddle-hairline);
+  border-radius: var(--huddle-radius-1);
+  overflow: hidden;
 }
 
-.aging-item__meta {
-  font-size: 0.75rem;
-  color: var(--huddle-ink-muted);
+.bar-row__fill {
+  height: 100%;
+  background: var(--huddle-accent);
+  /* rounded data-end, square at the baseline */
+  border-radius: 0 var(--huddle-radius-2) var(--huddle-radius-2) 0;
+  min-width: 2px;
+  transition: width 240ms var(--huddle-ease);
 }
 
-.aging-item__age {
+.bar-row__value {
   font-size: 0.75rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--huddle-ink-secondary);
+  color: var(--huddle-ink);
+  min-width: 2ch;
+  text-align: right;
 }
 
-/* Status text pairs with an icon and a word, so severity never rests on hue.
-   The warning step is sub-3:1 on white, so text uses an ink-safe darker step. */
-.status--warning {
-  color: #8a5a00;
-}
+/* ================================ table twin ============================== */
 
-.status--critical {
-  color: var(--huddle-critical);
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-
-@media (prefers-color-scheme: dark) {
-  .status--warning {
-    color: var(--huddle-warning);
-  }
-}
-
-/* ---- table view (the WCAG-clean twin of every chart above) ---- */
 
 .table-view {
   width: 100%;
@@ -253,11 +512,24 @@
   font-size: 0.75rem;
 }
 
+.table-view th {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--huddle-ink-muted);
+}
+
 .table-view th,
 .table-view td {
   text-align: left;
-  padding: 0.375rem 0.75rem;
+  padding: 0.4375rem var(--huddle-space-3);
   border-bottom: 1px solid var(--huddle-hairline);
+  color: var(--huddle-ink);
+}
+
+.table-view tbody tr:hover {
+  background: var(--huddle-wash);
 }
 
 .table-view td:last-child,
@@ -266,19 +538,87 @@
   font-variant-numeric: tabular-nums;
 }
 
-.plot-wrap {
-  position: relative;
+/* ================================= motion ================================= */
+
+@keyframes region-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.tooltip {
-  position: absolute;
-  pointer-events: none;
-  background: var(--huddle-ink);
-  color: var(--huddle-surface);
-  font-size: 0.688rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  white-space: nowrap;
-  transform: translate(-50%, -140%);
-  z-index: 2;
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .agenda__item,
+  .agenda__detail,
+  .agenda__row,
+  .agenda__agebar-fill,
+  .bar-row__fill {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =============================== responsive =============================== */
+
+/* Tablet and below: the urgency block moves under the question so the question
+   keeps a readable measure instead of being squeezed into a column. */
+@media (max-width: 48rem) {
+  .sheet {
+    padding: var(--huddle-space-3) var(--huddle-space-3) var(--huddle-space-5);
+  }
+
+  .sheet__h1 {
+    font-size: 1.25rem;
+  }
+
+  .agenda__row {
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+  }
+
+  .agenda__urgency {
+    grid-column: 2;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .agenda__agebar {
+    max-width: 12rem;
+  }
+
+  .agenda__detail {
+    padding-inline-start: var(--huddle-space-1);
+  }
+}
+
+@media (max-width: 30rem) {
+  .sheet__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .agenda__controls {
+    width: 100%;
+  }
+
+  .agenda__search,
+  .agenda__select {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
 }

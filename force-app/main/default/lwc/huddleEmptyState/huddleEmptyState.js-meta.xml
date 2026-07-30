@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Huddle Empty State</masterLabel>
+    <description>Empty state with an icon, a short explanation and an optional next-step action for the cases the user can actually resolve.</description>
+</LightningComponentBundle>

@@ -1,103 +1,296 @@
 /*
- * The console is an audit trail, not a chart, so it carries no series colors.
- * Change type is encoded by an icon plus its written name; the left rail is a
- * single accent hue that marks the timeline, not the category — a per-type hue
- * here would be identity color doing no work the label isn't already doing.
+ * HUDDLE - the audit trail as a briefing agenda.
+ *
+ * Same blue-on-white identity as the home sheet, same token names, so the two
+ * tabs read as one product. The console carries no series colours: change type is an
+ * icon plus its written name, and the left rail is a single accent hue marking the
+ * timeline, not the category - a per-type hue here would be identity colour doing no
+ * work the label is not already doing.
  */
 :host {
   display: block;
 
-  --huddle-accent: #2a78d6;
-  --huddle-good: #0ca30c;
+  --huddle-accent: #0176d3;
+  --huddle-accent-strong: #014486;
+  --huddle-accent-soft: #eef4ff;
+  --huddle-accent-track: #cfe4fb;
+
+  --huddle-urgent: #9a1c1c;
+  --huddle-urgent-soft: #fceceb;
+  --huddle-warn: #0176d3;
+  --huddle-warn-soft: #eef4ff;
+  --huddle-ok: #15803d;
+  --huddle-ok-soft: #e7f6ec;
 
   --huddle-surface: #ffffff;
-  --huddle-ink: #181818;
-  --huddle-ink-secondary: #54698d;
-  --huddle-ink-muted: #747474;
-  --huddle-hairline: #e5e5e5;
+  --huddle-sheet: #ffffff;
   --huddle-wash: #f3f3f3;
+  --huddle-ink: #1c1917;
+  --huddle-ink-secondary: #57534e;
+  --huddle-ink-muted: #78716c;
+  --huddle-hairline: #e7e5e4;
+  --huddle-hairline-strong: #d6d3d1;
+
+  --huddle-space-1: var(--slds-g-spacing-1, 0.25rem);
+  --huddle-space-2: var(--slds-g-spacing-2, 0.5rem);
+  --huddle-space-3: var(--slds-g-spacing-3, 0.75rem);
+  --huddle-space-4: var(--slds-g-spacing-4, 1rem);
+  --huddle-space-5: var(--slds-g-spacing-5, 1.5rem);
+  --huddle-space-6: var(--slds-g-spacing-6, 2rem);
+
+  --huddle-radius-1: var(--slds-g-radius-border-1, 0.125rem);
+  --huddle-radius-2: var(--slds-g-radius-border-2, 0.25rem);
+  --huddle-radius-pill: 999px;
+
+  --huddle-motion: 180ms;
+  --huddle-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --huddle-accent: #3987e5;
-    --huddle-good: #2fbf2f;
-    --huddle-surface: #1b1b1b;
-    --huddle-ink: #ffffff;
-    --huddle-ink-secondary: #c9c9c9;
-    --huddle-ink-muted: #a0a0a0;
-    --huddle-hairline: #3a3a3a;
-    --huddle-wash: #262626;
+    --huddle-accent: #57a9f5;
+    --huddle-accent-strong: #8fc9ff;
+    --huddle-accent-soft: #0b2a47;
+    --huddle-accent-track: #14416b;
+
+    --huddle-urgent: #f08b84;
+    --huddle-urgent-soft: #3a1a19;
+    --huddle-warn: #57a9f5;
+    --huddle-warn-soft: #0b2a47;
+    --huddle-ok: #6ee7a0;
+    --huddle-ok-soft: #16301f;
+
+    --huddle-surface: #1c1917;
+    --huddle-sheet: #1c1917;
+    --huddle-wash: #2b2724;
+    --huddle-ink: #fafaf9;
+    --huddle-ink-secondary: #d6d3d1;
+    --huddle-ink-muted: #a8a29e;
+    --huddle-hairline: #3a3532;
+    --huddle-hairline-strong: #514a46;
   }
 }
 
-/* ---- summary strip ---- */
+.sheet {
+  background: var(--huddle-sheet);
+  padding: var(--huddle-space-4) var(--huddle-space-4) var(--huddle-space-6);
+}
+
+/* ================================ masthead ================================ */
+
+.sheet__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--huddle-space-3);
+  padding-bottom: var(--huddle-space-3);
+  border-bottom: 3px solid var(--huddle-accent);
+}
+
+.sheet__title {
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.sheet__eyebrow {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--huddle-accent);
+}
+
+.sheet__h1 {
+  margin-top: 0.125rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--huddle-ink);
+}
+
+.sheet__sub {
+  margin-top: 0.1875rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--huddle-ink-muted);
+  max-width: 42rem;
+}
+
+.sheet__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--huddle-space-3);
+}
+
+.sheet__count {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted);
+  white-space: nowrap;
+}
+
+.sheet__refresh {
+  display: flex;
+  align-items: center;
+  gap: var(--huddle-space-2);
+}
+
+/* SLDS spinners are absolutely positioned, so they need a box of their own. */
+.sheet__spinner {
+  position: relative;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sheet__alert {
+  margin-top: var(--huddle-space-3);
+}
+
+/* ================================= regions ================================ */
+
+.region {
+  margin-top: var(--huddle-space-5);
+}
+
+.panel {
+  padding-top: var(--huddle-space-2);
+  animation: region-in var(--huddle-motion) var(--huddle-ease) both;
+}
+
+/* ================================= filters ================================ */
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--huddle-space-3);
+  padding-top: var(--huddle-space-3);
+  animation: region-in var(--huddle-motion) var(--huddle-ease) both;
+}
+
+.filters__field {
+  min-width: 0;
+}
+
+/* ============================== summary strip ============================= */
 
 .strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--huddle-hairline);
+  gap: var(--huddle-space-5);
+  margin-top: var(--huddle-space-4);
+  padding: var(--huddle-space-3) 0;
+  border-block: 1px solid var(--huddle-hairline);
 }
 
 .strip__stat {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse; /* figure on top, label under it */
+  min-width: 5rem;
 }
 
 .strip__value {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
   color: var(--huddle-ink);
-  line-height: 1.2;
+}
+
+.strip__stat_accent .strip__value {
+  color: var(--huddle-accent);
 }
 
 .strip__label {
-  font-size: 0.688rem;
+  font-size: 0.6875rem;
   color: var(--huddle-ink-muted);
 }
 
-/* ---- timeline ---- */
+/* ============================== log controls ============================== */
+
+.log__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--huddle-space-2);
+}
+
+.log__search {
+  min-width: 13rem;
+  flex: 1 1 13rem;
+}
+
+.log__select {
+  min-width: 11rem;
+  flex: 0 1 11rem;
+}
+
+.log__view {
+  flex: 0 0 auto;
+}
+
+/* ================================ timeline ================================ */
 
 .timeline {
-  padding: 0.5rem 1rem 1rem;
+  display: block;
+  padding-top: var(--huddle-space-2);
 }
 
+/* Rules and a rail, not cards. A border per audit row would turn two hundred
+   entries into two hundred boxes and bury the one that matters. */
 .entry {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.75rem;
-  position: relative;
-  padding-bottom: 1rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  gap: var(--huddle-space-3);
+  padding: var(--huddle-space-3) var(--huddle-space-1);
+  border-bottom: 1px solid var(--huddle-hairline);
+  transition: background-color var(--huddle-motion) var(--huddle-ease);
 }
 
-/* The connecting rail, aligned to the centre of the marker column. */
-.entry::before {
+.entry:last-child {
+  border-bottom: none;
+}
+
+.entry:hover {
+  background: var(--huddle-wash);
+}
+
+.entry__rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* The connecting rail runs from under the marker to the bottom of the row. */
+.entry__rail::after {
   content: "";
   position: absolute;
-  left: 0.688rem;
   top: 1.75rem;
-  bottom: 0;
+  bottom: -0.875rem;
   width: 1px;
-  background: var(--huddle-hairline);
+  background: var(--huddle-hairline-strong);
 }
 
-.entry:last-child::before {
+.entry:last-child .entry__rail::after {
   display: none;
 }
 
 .entry__marker {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: var(--huddle-wash);
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 2px surface ring keeps the dot legible where it sits on the rail */
-  box-shadow: 0 0 0 2px var(--huddle-surface);
-  z-index: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--huddle-accent-soft);
+  /* 2px sheet ring keeps the dot legible where it sits on the rail */
+  box-shadow: 0 0 0 2px var(--huddle-sheet);
+  --slds-c-icon-color-foreground-default: var(--huddle-accent-strong);
 }
 
 .entry__body {
@@ -108,94 +301,199 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: var(--huddle-space-2);
 }
 
 .entry__type {
-  font-size: 0.813rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 700;
   color: var(--huddle-ink);
 }
 
 .entry__record {
-  font-size: 0.813rem;
+  font-size: 0.8125rem;
   color: var(--huddle-ink-secondary);
   overflow-wrap: anywhere;
+}
+
+.entry__when {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted);
+  white-space: nowrap;
 }
 
 .entry__detail {
+  margin-top: 0.1875rem;
   font-size: 0.75rem;
+  line-height: 1.5;
   color: var(--huddle-ink-secondary);
-  margin-top: 0.125rem;
   overflow-wrap: anywhere;
 }
 
-.entry__meta {
+.entry__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-  font-size: 0.688rem;
+  align-items: center;
+  gap: var(--huddle-space-2);
+  margin-top: var(--huddle-space-2);
+}
+
+.entry__meta {
+  font-size: 0.6875rem;
   color: var(--huddle-ink-muted);
 }
 
 .entry__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-  font-size: 0.688rem;
+  gap: var(--huddle-space-3);
+  margin-top: var(--huddle-space-2);
+  font-size: 0.6875rem;
 }
 
 .entry__link {
   color: var(--huddle-accent);
-  cursor: pointer;
   text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--huddle-motion) var(--huddle-ease);
 }
 
-.entry__link:hover {
-  text-decoration: underline;
+.entry__link:hover,
+.entry__link:focus-visible {
+  color: var(--huddle-accent-strong);
+  border-bottom-color: currentColor;
 }
 
-/* Assignment is what a manager opens this tab to check, so it gets a dedicated
-   chip rather than being one column among many. */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.063rem 0.5rem;
-  border-radius: 0.75rem;
-  background: var(--huddle-wash);
-  font-size: 0.688rem;
-  color: var(--huddle-ink-secondary);
-  white-space: nowrap;
+/* The row action menu is always visible, never revealed on hover: a menu that only
+   exists under a cursor does not exist on a phone. */
+.entry__actions {
+  display: flex;
+  align-items: flex-start;
 }
 
-.chip--confirmed {
-  color: var(--huddle-good);
-}
+/* ================================== table ================================= */
 
-.filters {
-  padding: 0.75rem 1rem 0.25rem;
-}
-
-/* ---- table view ---- */
-
-.table-scroll {
+.table-wrap {
+  /* Datatable manages its own horizontal scroll; the wrapper only guarantees the
+     page itself never overflows. */
+  max-width: 100%;
   overflow-x: auto;
+  padding-top: var(--huddle-space-2);
 }
 
-.table-view {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
+/* ================================ pagination =============================== */
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--huddle-space-3);
+  margin-top: var(--huddle-space-4);
+  padding-top: var(--huddle-space-3);
+  border-top: 1px solid var(--huddle-hairline);
 }
 
-.table-view th,
-.table-view td {
-  text-align: left;
-  padding: 0.375rem 0.75rem;
-  border-bottom: 1px solid var(--huddle-hairline);
-  vertical-align: top;
+.pager__size {
+  min-width: 9rem;
+  flex: 0 0 9rem;
+}
+
+.pager__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--huddle-space-3);
+}
+
+.pager__label {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--huddle-ink-muted);
   white-space: nowrap;
+}
+
+.pager__more {
+  display: flex;
+  align-items: center;
+  gap: var(--huddle-space-2);
+}
+
+/* ================================== motion ================================ */
+
+@keyframes region-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .filters,
+  .entry,
+  .entry__link {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ================================ responsive ============================== */
+
+@media (max-width: 48rem) {
+  .sheet {
+    padding: var(--huddle-space-3) var(--huddle-space-3) var(--huddle-space-5);
+  }
+
+  .sheet__h1 {
+    font-size: 1.25rem;
+  }
+
+  .strip {
+    gap: var(--huddle-space-4);
+  }
+
+  /* On a narrow screen the timeline entry becomes a record card: the rail marker and
+     the action menu share the first line, the body flows underneath. */
+  .entry {
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    column-gap: var(--huddle-space-2);
+  }
+
+  .entry__head {
+    gap: var(--huddle-space-1) var(--huddle-space-2);
+  }
+}
+
+@media (max-width: 30rem) {
+  .sheet__actions {
+    width: 100%;
+  }
+
+  .log__controls {
+    width: 100%;
+  }
+
+  .log__search,
+  .log__select {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .pager {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pager__size {
+    flex: 1 1 auto;
+  }
+
+  .pager__nav {
+    justify-content: space-between;
+  }
 }

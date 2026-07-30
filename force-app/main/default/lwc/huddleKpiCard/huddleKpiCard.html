@@ -1,0 +1,93 @@
+<template>
+  <article class={cardClass}>
+    <template lwc:if={loading}>
+      <c-huddle-skeleton-loader
+        variant="kpi"
+        label="Loading measure"
+      ></c-huddle-skeleton-loader>
+    </template>
+
+    <template lwc:elseif={hasError}>
+      <div class="kpi__inner">
+        <div class="kpi__head">
+          <lightning-icon
+            icon-name="utility:error"
+            variant="error"
+            size="x-small"
+            alternative-text="Could not load"
+          ></lightning-icon>
+        </div>
+        <p class="kpi__label">{label}</p>
+        <p class="kpi__error">{errorMessage}</p>
+      </div>
+    </template>
+
+    <template lwc:else>
+      <div class="kpi__inner">
+        <div class="kpi__head">
+          <template lwc:if={iconName}>
+            <lightning-icon
+              class="kpi__icon"
+              icon-name={iconName}
+              variant={iconVariant}
+              size="x-small"
+              alternative-text=""
+            ></lightning-icon>
+          </template>
+          <template lwc:if={hasStatus}>
+            <c-huddle-status-badge
+              tone={statusTone}
+              label={statusLabel}
+            ></c-huddle-status-badge>
+          </template>
+        </div>
+
+        <template lwc:if={isEmpty}>
+          <p class="kpi__empty">{emptyMessage}</p>
+          <p class="kpi__label">{label}</p>
+        </template>
+
+        <template lwc:else>
+          <p class="kpi__value">{value}</p>
+          <p class="kpi__label">{label}</p>
+          <template lwc:if={supportingText}>
+            <p class="kpi__support">{supportingText}</p>
+          </template>
+
+          <template lwc:if={hasProgress}>
+            <div class="kpi__meter">
+              <lightning-progress-bar
+                value={progressValue}
+                size="small"
+                variant="circular"
+              ></lightning-progress-bar>
+              <p class="kpi__meter-label">{resolvedProgressLabel}</p>
+            </div>
+          </template>
+
+          <template lwc:if={hasTrend}>
+            <p class={trendClass}>
+              <lightning-icon
+                icon-name={trendIcon}
+                size="xx-small"
+                alternative-text=""
+                class="kpi__trend-icon"
+              ></lightning-icon>
+              <span>{trendLabel}</span>
+            </p>
+          </template>
+        </template>
+
+        <template lwc:if={hasAction}>
+          <div class="kpi__action">
+            <lightning-button
+              variant="base"
+              label={actionLabel}
+              onclick={handleAction}
+            ></lightning-button>
+          </div>
+        </template>
+      </div>
+    </template>
+  </article>
+</template>

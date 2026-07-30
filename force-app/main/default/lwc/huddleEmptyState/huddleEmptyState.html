@@ -1,0 +1,24 @@
+<template>
+  <div class={containerClass}>
+    <span class="empty__icon">
+      <lightning-icon
+        icon-name={iconName}
+        size="small"
+        alternative-text=""
+      ></lightning-icon>
+    </span>
+    <p class="empty__heading">{heading}</p>
+    <template lwc:if={message}>
+      <p class="empty__message">{message}</p>
+    </template>
+    <template lwc:if={hasAction}>
+      <div class="empty__action">
+        <lightning-button
+          variant={actionVariant}
+          label={actionLabel}
+          onclick={handleAction}
+        ></lightning-button>
+      </div>
+    </template>
+  </div>
+</template>

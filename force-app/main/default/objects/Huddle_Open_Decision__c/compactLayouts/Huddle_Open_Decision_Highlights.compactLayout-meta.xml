@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Huddle_Open_Decision_Highlights</fullName>
+    <fields>Name</fields>
+    <fields>Status__c</fields>
+    <fields>Days_Open__c</fields>
+    <fields>Needed_By__c</fields>
+    <fields>Opportunity__c</fields>
+    <fields>Raised_By__c</fields>
+    <label>Huddle Open Decision Highlights</label>
+</CompactLayout>

@@ -146,7 +146,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
     List<Huddle_Open_Decision__c> decisions
   ) {
     List<String> out = new List<String>();
-    out.add('INTERNAL DEAL TEAM DIGEST — ' + oppName);
+    out.add('INTERNAL DEAL TEAM DIGEST - ' + oppName);
     out.add('(Internal strategy only. None of this is customer-facing.)');
 
     if (sessions.isEmpty()) {
@@ -209,7 +209,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
         lines.add(
           '- ' +
             t.Subject +
-            ' — ' +
+            ' - ' +
             (t.Owner == null ? 'unassigned' : t.Owner.Name) +
             (t.ActivityDate == null ? '' : ', due ' + t.ActivityDate.format()) +
             (t.Huddle_Owner_Unclear__c == true
@@ -244,7 +244,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
             (d.Needed_By__c == null
               ? ''
               : ', needed by ' + d.Needed_By__c.format()) +
-            (age > Huddle_Constants.DECISION_AGING_DAYS ? ' — AGING' : '') +
+            (age > Huddle_Constants.DECISION_AGING_DAYS ? ' - AGING' : '') +
             ')'
         );
       }

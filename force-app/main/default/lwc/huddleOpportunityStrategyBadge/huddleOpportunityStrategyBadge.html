@@ -1,144 +1,191 @@
 <template>
-  <template if:true={hasActivity}>
-    <div class="badge">
-      <div class="badge__head">
-        <div>
-          <div class="badge__title">
-            <lightning-icon
-              icon-name="custom:custom18"
-              size="x-small"
-            ></lightning-icon>
-            <span>Huddle strategy history</span>
-          </div>
-          <div class="badge__internal">
-            Internal deal strategy — never surfaced to the customer.
-          </div>
+  <lightning-card icon-name="custom:custom18" title="Huddle strategy history">
+    <div slot="actions" class="card__actions">
+      <c-huddle-status-badge
+        tone="accent"
+        icon-name="utility:lock"
+        label="Internal only"
+        assistive-text="Internal only - never surfaced to the customer"
+      ></c-huddle-status-badge>
+      <template lwc:if={isRefreshing}>
+        <div class="card__spinner">
+          <lightning-spinner
+            size="small"
+            variant="brand"
+            alternative-text="Refreshing"
+          ></lightning-spinner>
         </div>
-        <lightning-button
-          variant="base"
-          label={toggleLabel}
-          onclick={toggle}
-        ></lightning-button>
-      </div>
+      </template>
+      <lightning-button-icon
+        icon-name="utility:refresh"
+        variant="bare"
+        size="small"
+        alternative-text={refreshLabel}
+        title={refreshLabel}
+        disabled={isRefreshing}
+        onclick={handleRefresh}
+      ></lightning-button-icon>
+    </div>
 
-      <div class="stats">
-        <div class="stat">
-          <lightning-icon
-            icon-name="utility:groups"
-            size="x-small"
-            alternative-text="Strategy sessions"
-          ></lightning-icon>
-          <div>
-            <div class="stat__figure">{sessions}</div>
-            <div class="stat__label">strategy sessions</div>
-          </div>
-        </div>
+    <div class="body">
+      <p class="internal-note">
+        Internal deal strategy - logged against this Opportunity, never surfaced
+        to the customer.
+      </p>
 
-        <div class="stat">
-          <lightning-icon
-            icon-name="utility:task"
-            size="x-small"
-            alternative-text="Action items"
-          ></lightning-icon>
-          <div>
-            <div class="stat__figure">{actionItems}</div>
-            <div class="stat__label">action items</div>
-          </div>
-        </div>
-
-        <div class="stat">
-          <svg
-            width="44"
-            height="44"
-            viewBox="0 0 44 44"
-            role="img"
-            aria-label={decisionRing.alt}
-          >
-            <circle
-              class="ring__track"
-              cx="22"
-              cy="22"
-              r={decisionRing.r}
-              fill="none"
-              stroke-width="5"
-            ></circle>
-            <circle
-              class="ring__fill"
-              cx="22"
-              cy="22"
-              r={decisionRing.r}
-              fill="none"
-              stroke-width="5"
-              stroke-linecap="round"
-              stroke-dasharray={decisionRing.dash}
-              transform="rotate(-90 22 22)"
-            ></circle>
-            <text
-              class="ring__value"
-              x="22"
-              y="22"
-              text-anchor="middle"
-              dominant-baseline="central"
-            >
-              {decisionRing.label}
-            </text>
-          </svg>
-          <div>
-            <div class="stat__label">decisions still unresolved</div>
-          </div>
-        </div>
-      </div>
-
-      <template if:true={hasOpenDecisions}>
-        <div class="alert">
-          <lightning-icon
-            icon-name="utility:warning"
-            variant="warning"
-            size="xx-small"
-            alternative-text="Unresolved"
-          ></lightning-icon>
-          <span>{openDecisionLabel}</span>
+      <template lwc:if={isStaleWarning}>
+        <div class="body__alert">
+          <c-huddle-error-state
+            variant="inline"
+            message={errorMessage}
+            detail={errorDetail}
+            retry-label="Try again"
+            retrying={isRefreshing}
+            onretry={handleRetry}
+          ></c-huddle-error-state>
         </div>
       </template>
 
-      <template if:true={expanded}>
-        <div class="history">
-          <template for:each={rows} for:item="row">
-            <div key={row.id} class="history__item">
-              <div class="history__title">{row.title}</div>
-              <div class="history__meta">
-                <span>{row.meta}</span>
-                <template if:true={row.hasStrategyLog}>
-                  <a
-                    class="history__link"
-                    data-id={row.strategyLogId}
-                    onclick={openRecord}
-                    >View meeting recap</a
-                  >
-                </template>
-              </div>
+      <!-- ------------------------------- loading ------------------------------ -->
+      <template lwc:if={isLoading}>
+        <div class="headline headline_loading">
+          <c-huddle-skeleton-loader
+            variant="stat"
+            label="Loading Huddle history for this deal"
+          ></c-huddle-skeleton-loader>
+        </div>
+        <div class="stats">
+          <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
+          <c-huddle-skeleton-loader variant="stat"></c-huddle-skeleton-loader>
+        </div>
+        <div class="meter">
+          <c-huddle-skeleton-loader
+            variant="lines"
+            count="1"
+          ></c-huddle-skeleton-loader>
+        </div>
+      </template>
+
+      <!-- ----------------------------- hard failure --------------------------- -->
+      <template lwc:elseif={isFatalError}>
+        <c-huddle-error-state
+          message={errorMessage}
+          detail={errorDetail}
+          retry-label="Try again"
+          retrying={isRefreshing}
+          onretry={handleRetry}
+        ></c-huddle-error-state>
+      </template>
+
+      <!-- ------------------------------- empty -------------------------------- -->
+      <template lwc:elseif={showEmpty}>
+        <c-huddle-empty-state
+          icon-name="utility:groups"
+          heading="No strategy session logged on this deal yet"
+          message="Give the Huddle agent the recap from your next internal deal review and the strategy, its reasoning and every action item will be logged here."
+          size="compact"
+        ></c-huddle-empty-state>
+      </template>
+
+      <!-- ------------------------------ content ------------------------------- -->
+      <template lwc:else>
+        <!-- The loudest figure: what this deal has left undecided. -->
+        <div class={headlineClass}>
+          <span class="headline__figure">{openDecisions}</span>
+          <div class="headline__text">
+            <p class="headline__label">{openDecisionLabel}</p>
+            <c-huddle-status-badge
+              tone={headlineTone}
+              icon-name={headlineIcon}
+              label={headlineStatusLabel}
+            ></c-huddle-status-badge>
+          </div>
+        </div>
+
+        <dl class="stats">
+          <div class="stat">
+            <dt class="stat__label">{sessionsLabel}</dt>
+            <dd class="stat__figure">{sessions}</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__label">{actionItemsLabel}</dt>
+            <dd class="stat__figure">{actionItems}</dd>
+          </div>
+          <template lwc:if={lastSessionLabel}>
+            <div class="stat stat_wide">
+              <dt class="stat__label">last session</dt>
+              <dd class="stat__meta">{lastSessionLabel}</dd>
             </div>
           </template>
-          <template if:true={hasMore}>
-            <div class="empty slds-p-top_x-small">{moreLabel}</div>
+        </dl>
+
+        <div class="meter">
+          <lightning-progress-bar
+            value={decisionsResolvedPct}
+            size="small"
+            variant="circular"
+          ></lightning-progress-bar>
+          <p class="meter__label">{decisionsMeterLabel}</p>
+        </div>
+
+        <div class="body__actions">
+          <template lwc:if={hasLastSession}>
+            <lightning-button
+              variant="brand"
+              label="Open the last meeting recap"
+              icon-name="utility:note"
+              onclick={openLastRecap}
+            ></lightning-button>
+          </template>
+          <template lwc:if={hasRows}>
+            <lightning-button
+              variant="base"
+              label={toggleLabel}
+              aria-expanded={isExpandedAttr}
+              aria-controls="huddle-badge-history"
+              onclick={toggle}
+            ></lightning-button>
           </template>
         </div>
+
+        <template lwc:if={expanded}>
+          <div id="huddle-badge-history" class="history">
+            <h3 class="history__heading">Audited actions on this deal</h3>
+            <ul>
+              <template for:each={rows} for:item="row">
+                <li key={row.id} class="history__item">
+                  <div class="history__main">
+                    <p class="history__title">
+                      <span class="history__type">{row.changeType}</span>
+                      <span class="history__record">{row.recordName}</span>
+                    </p>
+                    <p class="history__meta">{row.meta}</p>
+                  </div>
+                  <template lwc:if={row.hasStrategyLog}>
+                    <a
+                      href="#"
+                      class="history__link"
+                      data-id={row.strategyLogId}
+                      onclick={openRecord}
+                      >Meeting recap</a
+                    >
+                  </template>
+                </li>
+              </template>
+            </ul>
+            <template lwc:if={hasMore}>
+              <p class="history__more">{moreLabel}</p>
+            </template>
+            <div class="history__footer">
+              <lightning-button
+                variant="neutral"
+                label="Open the full Huddle audit trail"
+                onclick={openHuddleApp}
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
       </template>
     </div>
-  </template>
-
-  <template if:false={hasActivity}>
-    <div class="badge">
-      <div class="badge__title">
-        <lightning-icon
-          icon-name="custom:custom18"
-          size="x-small"
-        ></lightning-icon>
-        <span>Huddle strategy history</span>
-      </div>
-      <div class="empty slds-p-top_xx-small">
-        No strategy session has been logged on this deal yet.
-      </div>
-    </div>
-  </template>
+  </lightning-card>
 </template>

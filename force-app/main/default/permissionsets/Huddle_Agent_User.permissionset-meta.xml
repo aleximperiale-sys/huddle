@@ -217,6 +217,11 @@
         <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <field>Huddle_Open_Decision__c.Days_Open__c</field>
+        <readable>true</readable>
+        <editable>false</editable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Huddle_Change_Log__c.Change_Type__c</field>
         <readable>true</readable>
         <editable>true</editable>

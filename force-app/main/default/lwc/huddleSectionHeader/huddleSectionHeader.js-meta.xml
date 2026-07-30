@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Huddle Section Header</masterLabel>
+    <description>Briefing-sheet section rule: eyebrow, semantic heading, count, description, optional disclosure toggle and a slot for the section's actions.</description>
+</LightningComponentBundle>

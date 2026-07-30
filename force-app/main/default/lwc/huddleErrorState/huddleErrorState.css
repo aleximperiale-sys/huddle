@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+/* ---- inline alert: persists at the top of a region it does not replace ---- */
+
+.alert {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--huddle-space-2, 0.5rem);
+  align-items: start;
+  padding: var(--huddle-space-3, 0.75rem) var(--huddle-space-4, 1rem);
+  border-left: 3px solid var(--huddle-urgent, #9a1c1c);
+  background: var(--huddle-urgent-soft, #fceceb);
+  animation: err-in var(--huddle-motion, 180ms) var(--huddle-ease, ease-out)
+    both;
+}
+
+.alert__message {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--huddle-ink, #1c1917);
+}
+
+.alert__actions,
+.block__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--huddle-space-2, 0.5rem);
+  align-items: center;
+  margin-top: var(--huddle-space-1, 0.25rem);
+}
+
+/* ---- block state: stands in for content that could not load ---- */
+
+.block {
+  display: grid;
+  justify-items: center;
+  gap: var(--huddle-space-2, 0.5rem);
+  padding: var(--huddle-space-6, 2rem) var(--huddle-space-4, 1rem);
+  text-align: center;
+  animation: err-in var(--huddle-motion, 180ms) var(--huddle-ease, ease-out)
+    both;
+}
+
+.block__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--huddle-urgent-soft, #fceceb);
+}
+
+.block__message {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--huddle-ink, #1c1917);
+  max-width: 34rem;
+}
+
+.alert__detail,
+.block__detail {
+  margin-top: var(--huddle-space-2, 0.5rem);
+  padding: var(--huddle-space-2, 0.5rem);
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: var(--huddle-radius-2, 0.25rem);
+  background: var(--huddle-wash, #f3f3f3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--huddle-ink-secondary, #57534e);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@keyframes err-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert,
+  .block {
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert {
+    background: #3a1a19;
+  }
+
+  .block__icon {
+    background: #3a1a19;
+  }
+
+  .alert__detail,
+  .block__detail {
+    background: #2b2724;
+    color: #d6d3d1;
+  }
+}

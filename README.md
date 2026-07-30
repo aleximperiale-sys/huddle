@@ -2,29 +2,9 @@
 
 **Huddle is a sales employee agent that turns the notes from an internal deal-strategy meeting into real work**, action items become Tasks assigned to the right internal people, and the strategy itself gets logged against the Opportunity so the reasoning behind a deal's plan isn't lost the moment the meeting ends.
 
-Where [Scribe](https://github.com/aleximperiale-sys/Scribe) handles the customer-facing side of a deal (what was said on a call with the prospect), Huddle handles the internal side: the deal review, the strategy session with a sales engineer or manager, the "how are we going to win this" conversation that currently lives only in whoever attended's memory.
+Where [Scribe](https://github.com/aleximperiale-sys/scribe) handles the customer-facing side of a deal (what was said on a call with the prospect), Huddle handles the internal side: the deal review, the strategy session with a sales engineer or manager, the "how are we going to win this" conversation that currently lives only in whoever attended's memory.
 
 Everything Huddle logs is **internal-only at the data-model level**, and every action it takes is written to a dedicated **audit trail** reviewable through its own app, tabs, LWCs and list views.
-
----
-
-## Screenshots
-
-![Huddle Home dashboard](docs/screenshots/01-huddle.png)
-
-<details>
-<summary>More screenshots</summary>
-
-![Huddle Home — activity, action items, and open decisions](docs/screenshots/02-huddle-home.png)
-_Huddle Home — activity, action items, and open decisions_
-
-![Change Log](docs/screenshots/03-change-log.png)
-_Change Log — strategies, decisions, and tasks logged from every meeting_
-
-![Huddle Strategy Logs list view](docs/screenshots/04-huddle-strategy-logs.png)
-_Huddle Strategy Logs list view_
-
-</details>
 
 ---
 
@@ -196,7 +176,7 @@ Anything unresolved becomes a Task flagged `Huddle_Owner_Unclear__c`, parked wit
 
 ## Component inventory
 
-**Custom objects** — `Huddle_Strategy_Log__c`, `Huddle_Open_Decision__c`, `Huddle_Change_Log__c`, plus three custom fields on `Activity` (which surface on `Task`).
+**Custom objects** - `Huddle_Strategy_Log__c`, `Huddle_Open_Decision__c`, `Huddle_Change_Log__c`, plus three custom fields on `Activity` (which surface on `Task`).
 
 **Apex** (16 classes)
 
@@ -215,19 +195,21 @@ Anything unresolved becomes a Task flagged `Huddle_Owner_Unclear__c`, parked wit
 | `Huddle_Constants`, `Huddle_Util`       | Shared vocabulary and coercions                            |
 | `Huddle_TestUtil` + 3 test classes      | Fixtures and coverage                                      |
 
-**Flows** (autolaunched, referenced by the agent) — `Huddle_Log_Strategy`, `Huddle_Create_Action_Items`, `Huddle_Identify_Open_Decisions`, `Huddle_Deal_Team_Digest`.
+**Flows** (autolaunched, referenced by the agent) - `Huddle_Log_Strategy`, `Huddle_Create_Action_Items`, `Huddle_Identify_Open_Decisions`, `Huddle_Deal_Team_Digest`.
 
 **LWCs**
 
-- `huddleChangeLogConsole` — filterable by Opportunity, rep and change type; each row links back to the source meeting recap.
-- `huddleHomeDashboard` — sessions this week, action items completed/created, unresolved decisions, action items with an unclear owner (red when non-zero), plus open decisions aging past a week and a 7-day trend.
-- `huddleOpportunityStrategyBadge` — "Huddle has logged 2 strategy sessions and 4 action items" on the Opportunity record page, with the internal-only status stated out loud and a click-through to the full history.
+- `huddleChangeLogConsole` - filterable by Opportunity, rep and change type; each row links back to the source meeting recap.
+- `huddleHomeDashboard` - sessions this week, action items completed/created, unresolved decisions, action items with an unclear owner (red when non-zero), plus open decisions aging past a week and a 7-day trend.
+- `huddleOpportunityStrategyBadge` - "Huddle has logged 2 strategy sessions and 4 action items" on the Opportunity record page, with the internal-only status stated out loud and a click-through to the full history.
 
-**Lightning app** — `Huddle`, with tabs: Huddle Home, Change Log, Strategy Logs, Open Decisions, Action Items (Tasks), Change Log records.
+**Lightning app** - `Huddle`, with tabs: Huddle Home, Change Log, Strategy Logs, Open Decisions, Action Items (Tasks), Change Log records.
 
-**List views** — Task: _Created by Huddle_, _Huddle: Owner Unclear_. Open Decision: _Open_, _Aging Past 7 Days_, _All_. Strategy Log: _This Week_, _By Opportunity_.
+**Record pages** - a Lightning record page per custom object (`Huddle_Strategy_Log_Record_Page`, `Huddle_Open_Decision_Record_Page`, `Huddle_Change_Log_Record_Page`), each assigned as the object's org default desktop page via `actionOverrides` on the object, with a compact layout driving the highlights panel and a page layout ordering fields by decision-relevance rather than alphabetically. The strategy log is the hub: it carries related lists for its open decisions, its generated action items and its audit rows. Plus `Huddle_Opportunity_Record_Page`, which surfaces `huddleOpportunityStrategyBadge` on the deal.
 
-**Permission sets** — `Huddle_Agent_User` (write to Task, Strategy Log, Open Decision, Change Log; Opportunity deliberately **read-only**, Huddle logs strategy against a deal but never edits the deal's own fields) and `Huddle_Reviewer` (read access for managers, plus the ability to resolve an open decision).
+**List views** - Task: _Created by Huddle_, _Huddle: Owner Unclear_. Open Decision: _Open_, _Aging Past 7 Days_, _All_. Strategy Log: _This Week_, _By Opportunity_.
+
+**Permission sets** - `Huddle_Agent_User` (write to Task, Strategy Log, Open Decision, Change Log; Opportunity deliberately **read-only**, Huddle logs strategy against a deal but never edits the deal's own fields) and `Huddle_Reviewer` (read access for managers, plus the ability to resolve an open decision).
 
 ## Guardrails & safety
 
@@ -256,8 +238,9 @@ sf org assign permset --name Huddle_Reviewer --target-org huddle-dev
 Then, in the org:
 
 1. Open **Setup → Agentforce Agents** and activate `Huddle`.
-2. Add `huddleOpportunityStrategyBadge` to the Opportunity record page in the Lightning App Builder.
-3. Open the **Huddle** app to see the dashboard and change log.
+2. Open the **Huddle** app to see the dashboard and change log.
+
+`huddleOpportunityStrategyBadge` no longer needs to be placed by hand: `Huddle_Opportunity_Record_Page` ships it on the Opportunity sidebar and is assigned as the org's default desktop Opportunity page by `objects/Opportunity/Opportunity.object-meta.xml`. **That replaces whatever Opportunity record page the target org is using today.** Delete that one file before deploying to keep the org's existing page; the flexipage still deploys and can be activated by hand from Setup → Object Manager → Opportunity → Lightning Record Pages.
 
 ## Testing
 
@@ -286,13 +269,26 @@ force-app/main/default/
 ├── aiAuthoringBundles/Huddle_Agent/   # the Agentforce agent
 ├── applications/                      # the Huddle Lightning app
 ├── classes/                           # 16 Apex classes
-├── flexipages/                        # Huddle Home, Change Log
+├── flexipages/                        # Huddle Home, Change Log + 4 record pages
 ├── flows/                             # 4 autolaunched flows
+├── layouts/                           # field order + related lists per custom object
 ├── lwc/                               # 3 components
 ├── objects/                           # 3 custom objects + Activity fields + list views
+│                                      #   + compact layouts + record page assignment
 ├── permissionsets/                    # Huddle_Agent_User, Huddle_Reviewer
 └── tabs/                              # 5 tabs
 ```
+
+## Screenshots
+
+Captured from a live org at a 1200px viewport.
+
+| | |
+|---|---|
+| ![Huddle Home](docs/screenshots/01-home.png) | ![Change Log](docs/screenshots/02-change-log.png) |
+| **Huddle Home.** The briefing sheet. Open decisions aging past a week lead the page, because that is the region a manager acts on. | **Change Log.** Every write Huddle made, with scope filters, search, sorting and paging. |
+| ![Strategy Logs](docs/screenshots/03-strategy-logs.png) | ![Open Decisions](docs/screenshots/04-open-decisions.png) |
+| **Strategy Logs.** All Strategy Logs, the tab default. | **Open Decisions.** All Decisions, with day count and urgency. |
 
 ## License
 
