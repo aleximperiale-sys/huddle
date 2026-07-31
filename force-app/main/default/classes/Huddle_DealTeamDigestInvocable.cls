@@ -77,6 +77,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
         Logged_By__r.Name
       FROM Huddle_Strategy_Log__c
       WHERE Opportunity__c = :oppId
+      WITH USER_MODE
       ORDER BY Meeting_Date__c DESC, CreatedDate DESC
       LIMIT :sessionLimit
     ];
@@ -87,6 +88,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
         WhatId = :oppId
         AND Huddle_Generated__c = TRUE
         AND Status != 'Completed'
+      WITH USER_MODE
       ORDER BY ActivityDate ASC NULLS LAST
       LIMIT 50
     ];
@@ -96,6 +98,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
       WHERE
         Opportunity__c = :oppId
         AND Status__c = :Huddle_Constants.DECISION_OPEN
+      WITH USER_MODE
       ORDER BY CreatedDate ASC
       LIMIT 50
     ];
@@ -264,6 +267,7 @@ public with sharing class Huddle_DealTeamDigestInvocable {
       SELECT Name
       FROM Opportunity
       WHERE Id = :oppId
+      WITH USER_MODE
       LIMIT 1
     ];
     return opps.isEmpty() ? 'this deal' : opps[0].Name;

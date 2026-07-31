@@ -260,6 +260,7 @@ public with sharing class Huddle_ExtractionService {
         SELECT Extraction_JSON__c, Meeting_Recap__c
         FROM Huddle_Strategy_Log__c
         WHERE Id = :strategyLogId
+        WITH USER_MODE
         LIMIT 1
       ];
       if (!logs.isEmpty()) {

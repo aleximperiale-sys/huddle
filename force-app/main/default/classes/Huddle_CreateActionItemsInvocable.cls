@@ -353,6 +353,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
       SELECT Meeting_Date__c
       FROM Huddle_Strategy_Log__c
       WHERE Id = :strategyLogId
+      WITH USER_MODE
       LIMIT 1
     ];
     if (logs.isEmpty() || logs[0].Meeting_Date__c == null) {
@@ -370,6 +371,7 @@ public with sharing class Huddle_CreateActionItemsInvocable {
       SELECT Opportunity__c
       FROM Huddle_Strategy_Log__c
       WHERE Id = :strategyLogId
+      WITH USER_MODE
       LIMIT 1
     ];
     return logs.isEmpty() ? null : logs[0].Opportunity__c;

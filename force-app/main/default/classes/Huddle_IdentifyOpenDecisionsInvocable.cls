@@ -154,6 +154,7 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
       WHERE
         Opportunity__c = :oppId
         AND Status__c = :Huddle_Constants.DECISION_OPEN
+      WITH USER_MODE
       LIMIT 500
     ]) {
       out.add(normalize(d.Question__c));
@@ -174,6 +175,7 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
       SELECT Meeting_Date__c
       FROM Huddle_Strategy_Log__c
       WHERE Id = :strategyLogId
+      WITH USER_MODE
       LIMIT 1
     ];
     if (logs.isEmpty() || logs[0].Meeting_Date__c == null) {
@@ -195,6 +197,7 @@ public with sharing class Huddle_IdentifyOpenDecisionsInvocable {
       SELECT Opportunity__c
       FROM Huddle_Strategy_Log__c
       WHERE Id = :strategyLogId
+      WITH USER_MODE
       LIMIT 1
     ];
     return logs.isEmpty() ? null : logs[0].Opportunity__c;

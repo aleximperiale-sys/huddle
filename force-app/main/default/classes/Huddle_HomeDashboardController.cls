@@ -72,18 +72,25 @@ public with sharing class Huddle_HomeDashboardController {
       SELECT COUNT()
       FROM Huddle_Strategy_Log__c
       WHERE Meeting_Date__c = THIS_WEEK
+      WITH USER_MODE
     ];
-    s.sessionsAllTime = [SELECT COUNT() FROM Huddle_Strategy_Log__c];
+    s.sessionsAllTime = [
+      SELECT COUNT()
+      FROM Huddle_Strategy_Log__c
+      WITH USER_MODE
+    ];
 
     s.actionItemsCreated = [
       SELECT COUNT()
       FROM Task
       WHERE Huddle_Generated__c = TRUE
+      WITH USER_MODE
     ];
     s.actionItemsCompleted = [
       SELECT COUNT()
       FROM Task
       WHERE Huddle_Generated__c = TRUE AND Status = 'Completed'
+      WITH USER_MODE
     ];
     s.actionItemsOwnerUnclear = [
       SELECT COUNT()
@@ -92,18 +99,21 @@ public with sharing class Huddle_HomeDashboardController {
         Huddle_Generated__c = TRUE
         AND Huddle_Owner_Unclear__c = TRUE
         AND Status != 'Completed'
+      WITH USER_MODE
     ];
 
     s.openDecisions = [
       SELECT COUNT()
       FROM Huddle_Open_Decision__c
       WHERE Status__c = :Huddle_Constants.DECISION_OPEN
+      WITH USER_MODE
     ];
 
     s.decisionsResolved = [
       SELECT COUNT()
       FROM Huddle_Open_Decision__c
       WHERE Status__c = :Huddle_Constants.DECISION_RESOLVED
+      WITH USER_MODE
     ];
 
     for (Huddle_Open_Decision__c d : [
@@ -118,6 +128,7 @@ public with sharing class Huddle_HomeDashboardController {
       WHERE
         Status__c = :Huddle_Constants.DECISION_OPEN
         AND Days_Open__c > :Huddle_Constants.DECISION_AGING_DAYS
+      WITH USER_MODE
       ORDER BY Days_Open__c DESC
       LIMIT 10
     ]) {
@@ -138,6 +149,7 @@ public with sharing class Huddle_HomeDashboardController {
       SELECT Created_By_Rep__r.Name repName, COUNT(Id) cnt
       FROM Huddle_Change_Log__c
       WHERE CreatedDate = THIS_WEEK AND Created_By_Rep__c != NULL
+      WITH USER_MODE
       GROUP BY Created_By_Rep__r.Name
       ORDER BY COUNT(Id) DESC
       LIMIT 5
@@ -151,6 +163,7 @@ public with sharing class Huddle_HomeDashboardController {
       SELECT Change_Type__c ct, COUNT(Id) cnt
       FROM Huddle_Change_Log__c
       WHERE CreatedDate = THIS_WEEK AND Change_Type__c != NULL
+      WITH USER_MODE
       GROUP BY Change_Type__c
       ORDER BY COUNT(Id) DESC
     ]) {
@@ -163,6 +176,7 @@ public with sharing class Huddle_HomeDashboardController {
       SELECT DAY_ONLY(CreatedDate) d, COUNT(Id) cnt
       FROM Huddle_Change_Log__c
       WHERE CreatedDate = LAST_N_DAYS:7
+      WITH USER_MODE
       GROUP BY DAY_ONLY(CreatedDate)
     ]) {
       counts.put((Date) ar.get('d'), (Integer) ar.get('cnt'));

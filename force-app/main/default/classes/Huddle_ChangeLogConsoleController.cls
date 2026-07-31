@@ -113,7 +113,10 @@ public with sharing class Huddle_ChangeLogConsoleController {
 
     List<ChangeRow> rows = new List<ChangeRow>();
     for (
-      Huddle_Change_Log__c c : (List<Huddle_Change_Log__c>) Database.query(soql)
+      Huddle_Change_Log__c c : (List<Huddle_Change_Log__c>) Database.query(
+        soql,
+        AccessLevel.USER_MODE
+      )
     ) {
       rows.add(toRow(c));
     }
@@ -145,6 +148,7 @@ public with sharing class Huddle_ChangeLogConsoleController {
         CreatedDate
       FROM Huddle_Change_Log__c
       WHERE Opportunity__c = :opportunityId
+      WITH USER_MODE
       ORDER BY CreatedDate DESC
       LIMIT 200
     ]) {
@@ -166,6 +170,7 @@ public with sharing class Huddle_ChangeLogConsoleController {
       SELECT Id, CreatedDate
       FROM Huddle_Strategy_Log__c
       WHERE Opportunity__c = :oppId
+      WITH USER_MODE
       ORDER BY CreatedDate DESC
       LIMIT 200
     ];
@@ -178,6 +183,7 @@ public with sharing class Huddle_ChangeLogConsoleController {
       SELECT COUNT()
       FROM Task
       WHERE WhatId = :oppId AND Huddle_Generated__c = TRUE
+      WITH USER_MODE
     ];
     s.openDecisions = [
       SELECT COUNT()
@@ -185,6 +191,7 @@ public with sharing class Huddle_ChangeLogConsoleController {
       WHERE
         Opportunity__c = :oppId
         AND Status__c = :Huddle_Constants.DECISION_OPEN
+      WITH USER_MODE
     ];
     return s;
   }
@@ -202,6 +209,7 @@ public with sharing class Huddle_ChangeLogConsoleController {
         Opportunity__r.Name
       FROM Huddle_Change_Log__c
       WHERE CreatedDate = LAST_N_DAYS:180
+      WITH USER_MODE
       LIMIT 5000
     ]) {
       if (

@@ -82,6 +82,7 @@ public with sharing class Huddle_OwnerResolver {
         IsActive = TRUE
         AND (Name LIKE :patterns
         OR FirstName LIKE :patterns)
+      WITH USER_MODE
       LIMIT 200
     ];
 
@@ -158,7 +159,13 @@ public with sharing class Huddle_OwnerResolver {
     if (userId == null) {
       return null;
     }
-    List<User> users = [SELECT Name FROM User WHERE Id = :userId LIMIT 1];
+    List<User> users = [
+      SELECT Name
+      FROM User
+      WHERE Id = :userId
+      WITH USER_MODE
+      LIMIT 1
+    ];
     return users.isEmpty() ? null : users[0].Name;
   }
 

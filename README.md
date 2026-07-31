@@ -2,7 +2,7 @@
 
 **Huddle is a sales employee agent that turns the notes from an internal deal-strategy meeting into real work**, action items become Tasks assigned to the right internal people, and the strategy itself gets logged against the Opportunity so the reasoning behind a deal's plan isn't lost the moment the meeting ends.
 
-Where [Scribe](https://github.com/aleximperiale-sys/scribe) handles the customer-facing side of a deal (what was said on a call with the prospect), Huddle handles the internal side: the deal review, the strategy session with a sales engineer or manager, the "how are we going to win this" conversation that currently lives only in whoever attended's memory.
+Where [Scribe](https://github.com/Alex Imperiale/Scribe) handles the customer-facing side of a deal (what was said on a call with the prospect), Huddle handles the internal side: the deal review, the strategy session with a sales engineer or manager, the "how are we going to win this" conversation that currently lives only in whoever attended's memory.
 
 Everything Huddle logs is **internal-only at the data-model level**, and every action it takes is written to a dedicated **audit trail** reviewable through its own app, tabs, LWCs and list views.
 
@@ -224,7 +224,7 @@ Anything unresolved becomes a Task flagged `Huddle_Owner_Unclear__c`, parked wit
 Requires the Salesforce CLI and an org with Agentforce enabled.
 
 ```bash
-git clone https://github.com/aleximperiale-sys/huddle.git
+git clone https://github.com/Alex Imperiale/huddle.git
 cd huddle
 npm install
 
